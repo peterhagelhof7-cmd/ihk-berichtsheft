@@ -33,7 +33,8 @@ class DeckblattService {
 		return PdfExportService::azubiDateinameBasis($azubi, $this->userManager) . '-00.pdf';
 	}
 
-	public function erzeugen(Azubi $azubi): void {
+	/** Oeffentlich, damit GesamtExportService das Deckblatt dem IHK-Gesamtnachweis voranstellen kann. */
+	public function renderHtml(Azubi $azubi): string {
 		$verantwortlicherName = $this->userManager->get($azubi->getVerantwortlicherAusbilderUserId())?->getDisplayName()
 			?? $azubi->getVerantwortlicherAusbilderUserId();
 
@@ -47,10 +48,14 @@ class DeckblattService {
 			'verantwortlicherName' => $verantwortlicherName,
 		];
 
-		$html = $this->renderTemplate(
+		return $this->renderTemplate(
 			Server::get(IAppManager::class)->getAppPath(Application::APP_ID) . '/templates/pdf/deckblatt.php',
 			$vars,
 		);
+	}
+
+	public function erzeugen(Azubi $azubi): void {
+		$html = $this->renderHtml($azubi);
 
 		$options = new DompdfOptions();
 		$options->setIsRemoteEnabled(false);

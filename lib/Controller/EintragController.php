@@ -136,7 +136,7 @@ class EintragController extends Controller {
 			'stunden' => $eintrag->getStunden(),
 			'faecher' => $eintrag->getTagTyp() === Eintrag::TAG_TYP_BERUFSSCHULE
 				? array_map(
-					static fn ($fe) => ['fachId' => $fe->getFachId(), 'stunden' => $fe->getStunden()],
+					static fn ($fe) => ['fachId' => $fe->getFachId(), 'stunden' => $fe->getStunden(), 'inhalt' => $fe->getInhalt()],
 					$this->fachEintragMapper->findByEintragId($eintrag->getId()),
 				)
 				: [],

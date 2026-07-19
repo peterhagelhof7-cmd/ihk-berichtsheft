@@ -8,30 +8,39 @@ declare(strict_types=1);
  * von ['label'=>string,'datum'=>string,'inhaltHtml'=>string bereits
  * escaped/formatiert,'stundenText'=>string]), $eingereichtVonName,
  * $eingereichtAmFormatiert, $akzeptiertVonName, $akzeptiertAmFormatiert,
- * $bemerkungen, $seitenumbruchDanach (bool). Wird von PdfExportService per
+ * $bemerkungen, $seitenumbruchDavor (bool). Wird von PdfExportService per
  * extract() befuellt (Plan Abschnitt 1/4) - HTML-Aufbereitung der
  * Tagesinhalte (Freitext vs. Fach-Liste vs. Sonderlabel
  * Feiertag/Urlaub/Krankheit) passiert bereits im PHP-Code, nicht hier.
+ *
+ * Diese Vorlage wird pro Woche einzeln gerendert und die Ergebnisse
+ * anschliessend zu EINEM HTML-Dokument aneinandergehaengt
+ * (PdfExportService::erzeugeExport). Deshalb braucht jede Instanz eine
+ * eindeutige CSS-Klasse statt der frueheren gemeinsamen ".nachweis" -
+ * sonst gilt in der finalen Kaskade nur die zuletzt deklarierte Regel fuer
+ * ALLE vier Bloecke gleichzeitig (u.a. Ursache einer leeren Extra-Seite).
  */
 $e = static fn (?string $v): string => htmlspecialchars($v ?? '', ENT_QUOTES, 'UTF-8');
+$klasse = 'nachweis-' . (int)$nachweisNr;
 
 ?>
 <style>
-	.nachweis { font-family: sans-serif; font-size: 9pt; padding: 10mm; <?= $seitenumbruchDanach ? 'page-break-after: always;' : '' ?> }
-	.nachweis .kopf { width: 100%; border-collapse: collapse; margin-bottom: 4mm; }
-	.nachweis .kopf td { padding: 1mm 2mm; font-size: 10pt; }
-	.nachweis .kopf td.label { font-weight: bold; width: 30%; }
-	.nachweis table.tage { width: 100%; border-collapse: collapse; }
-	.nachweis table.tage th, .nachweis table.tage td { border: 0.3mm solid #666; padding: 2mm; vertical-align: top; }
-	.nachweis table.tage th { background: #eee; font-size: 8pt; }
-	.nachweis table.tage td.tag-label { width: 15%; font-weight: bold; }
-	.nachweis table.tage td.stunden { width: 12%; text-align: right; }
-	.nachweis .fuss { margin-top: 4mm; font-size: 9pt; }
-	.nachweis .fuss table { width: 100%; }
-	.nachweis .fuss td { padding: 1mm 2mm; vertical-align: top; }
+	html, body { margin: 0; padding: 0; }
+	.<?= $klasse ?> { font-family: sans-serif; font-size: 9pt; padding: 10mm; <?= $seitenumbruchDavor ? 'page-break-before: always;' : '' ?> }
+	.<?= $klasse ?> .kopf { width: 100%; border-collapse: collapse; margin-bottom: 4mm; }
+	.<?= $klasse ?> .kopf td { padding: 1mm 2mm; font-size: 10pt; }
+	.<?= $klasse ?> .kopf td.label { font-weight: bold; width: 30%; }
+	.<?= $klasse ?> table.tage { width: 100%; border-collapse: collapse; }
+	.<?= $klasse ?> table.tage th, .<?= $klasse ?> table.tage td { border: 0.3mm solid #666; padding: 2mm; vertical-align: top; }
+	.<?= $klasse ?> table.tage th { background: #eee; font-size: 8pt; }
+	.<?= $klasse ?> table.tage td.tag-label { width: 15%; font-weight: bold; }
+	.<?= $klasse ?> table.tage td.stunden { width: 12%; text-align: right; }
+	.<?= $klasse ?> .fuss { margin-top: 4mm; font-size: 9pt; }
+	.<?= $klasse ?> .fuss table { width: 100%; }
+	.<?= $klasse ?> .fuss td { padding: 1mm 2mm; vertical-align: top; }
 </style>
 
-<div class="nachweis">
+<div class="<?= $klasse ?>">
 	<table class="kopf">
 		<tr>
 			<td class="label">Ausbildungsnachweis Nr.</td><td><?= $e((string)$nachweisNr) ?></td>

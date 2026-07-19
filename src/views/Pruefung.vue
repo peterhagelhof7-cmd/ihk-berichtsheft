@@ -6,6 +6,14 @@ import NcNoteCard from '@nextcloud/vue/components/NcNoteCard'
 import { api } from '../api.ts'
 
 interface Rueckweisung { kommentar: string, zurueckgewiesenAm: number }
+interface FachEintragAnzeige { fachName: string, stunden: number, inhalt: string | null }
+interface EintragAnzeige {
+	datum: string
+	tagTyp: string
+	taetigkeit: string | null
+	stunden: number | null
+	faecher: FachEintragAnzeige[]
+}
 interface EingereichteWoche {
 	id: number
 	azubiId: number
@@ -16,6 +24,15 @@ interface EingereichteWoche {
 	eingereichtVonName: string
 	eingereichtAm: number
 	rueckweisungen: Rueckweisung[]
+	eintraege: EintragAnzeige[]
+}
+
+const TAGTYP_LABEL: Record<string, string> = {
+	betrieb: 'Betrieb',
+	berufsschule: 'Berufsschule',
+	feiertag: 'Feiertag',
+	urlaub: 'Urlaub',
+	krankheit: 'Krankheit',
 }
 
 const wochen = ref<EingereichteWoche[]>([])
@@ -83,6 +100,18 @@ onMounted(lade)
 				</ul>
 			</div>
 
+			<div class="eintraege">
+				<div v-for="e in woche.eintraege" :key="e.datum" class="eintrag-zeile">
+					<strong>{{ e.datum }} — {{ TAGTYP_LABEL[e.tagTyp] ?? e.tagTyp }}</strong>
+					<p v-if="e.tagTyp === 'betrieb'" class="taetigkeit">{{ e.taetigkeit }} ({{ e.stunden }}h)</p>
+					<ul v-else-if="e.tagTyp === 'berufsschule'">
+						<li v-for="(f, i) in e.faecher" :key="i">
+							{{ f.fachName }}: {{ f.stunden }}h<span v-if="f.inhalt"> – {{ f.inhalt }}</span>
+						</li>
+					</ul>
+				</div>
+			</div>
+
 			<NcTextArea
 				:model-value="kommentarFuer[woche.id] ?? ''"
 				placeholder="Kommentar (Pflichtfeld bei Zurückweisung)"
@@ -117,6 +146,20 @@ onMounted(lade)
 	border-radius: var(--border-radius);
 	margin-bottom: 8px;
 	font-size: 0.9em;
+}
+.eintraege {
+	margin-bottom: 12px;
+}
+.eintrag-zeile {
+	padding: 6px 0;
+	border-bottom: 1px solid var(--color-border);
+}
+.eintrag-zeile:last-child {
+	border-bottom: none;
+}
+.eintrag-zeile .taetigkeit {
+	white-space: pre-wrap;
+	margin: 4px 0 0;
 }
 .aktionen {
 	display: flex;

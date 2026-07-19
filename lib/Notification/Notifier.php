@@ -37,7 +37,7 @@ class Notifier implements INotifier {
 			throw new UnknownNotificationException('App stimmt nicht.');
 		}
 
-		$l = $this->factory->get(Application::APP_ID, $languageCode);
+		$l = $this->l10nFactory->get(Application::APP_ID, $languageCode);
 		$parameters = $notification->getSubjectParameters();
 
 		switch ($notification->getSubject()) {

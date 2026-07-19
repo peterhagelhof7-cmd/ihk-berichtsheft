@@ -31,6 +31,18 @@ class FileStorageService {
 	) {
 	}
 
+	/** Findet einen bereits vorhandenen "Berichtsheft - ..."-Ordner des Azubis unter einem anderen (veralteten) Namen. */
+	private function findeVorherigenOrdner(Folder $userFolder, string $aktuellerName): ?Folder {
+		foreach ($userFolder->getDirectoryListing() as $node) {
+			if ($node instanceof Folder
+				&& $node->getName() !== $aktuellerName
+				&& str_starts_with($node->getName(), 'Berichtsheft - ')) {
+				return $node;
+			}
+		}
+		return null;
+	}
+
 	private function ordnername(Azubi $azubi): string {
 		$name = trim(($azubi->getNachname() ?? '') . ', ' . ($azubi->getVorname() ?? ''));
 		if ($name === ',' || $name === '') {
@@ -52,7 +64,21 @@ class FileStorageService {
 			/** @var Folder $ordner */
 			$ordner = $userFolder->get($name);
 		} catch (NotFoundException) {
-			$ordner = $userFolder->newFolder($name);
+			$vorheriger = $this->findeVorherigenOrdner($userFolder, $name);
+			if ($vorheriger !== null) {
+				// Vorname/Nachname wurden nachtraeglich gesetzt oder
+				// geaendert, der Ordnername haengt aber daran (s.
+				// ordnername()) - den bestehenden Ordner umbenennen statt
+				// eine Ordner-Leiche mit veraltetem Inhalt liegenzulassen
+				// (die dem Ausbilder als zusaetzlicher, verwirrender
+				// Eintrag unter "Mit mir geteilt" angezeigt wuerde). Der
+				// bereits bestehende Gruppen-Share haengt am Datei-Node,
+				// nicht am Pfad, und bleibt beim Umbenennen erhalten.
+				$vorheriger->move($userFolder->getPath() . '/' . $name);
+				$ordner = $vorheriger;
+			} else {
+				$ordner = $userFolder->newFolder($name);
+			}
 		}
 
 		$gruppe = $this->ausbilderGruppenService->getGruppenName();
@@ -71,7 +97,22 @@ class FileStorageService {
 			$share->setSharedBy($azubi->getUserId());
 			$share->setShareOwner($azubi->getUserId());
 			$share->setPermissions(Constants::PERMISSION_READ);
-			$this->shareManager->createShare($share);
+			$share = $this->shareManager->createShare($share);
+
+			// Normalerweise akzeptiert Nextclouds eigener
+			// ShareCreatedEvent-Listener Gruppen-Shares automatisch fuer
+			// alle Mitglieder. Da diese Freigabe waehrend der
+			// Azubi-Aktivierung im Kontext des ausfuehrenden Ausbilders
+			// (nicht des Azubis/Besitzers) angelegt wird, wirft die
+			// Activity-App dabei einen NotFoundException beim Aufloesen
+			// des Pfads fuer den aktuell eingeloggten Nutzer - das bricht
+			// die Event-Listener-Kette ab, bevor die Auto-Annahme laeuft,
+			// und die Freigabe bleibt fuer alle Ausbilder auf PENDING
+			// stehen (unsichtbar unter "Mit mir geteilt"). Deshalb hier
+			// explizit statt event-basiert annehmen.
+			foreach ($this->ausbilderGruppenService->getAlleAusbilderUserIds() as $ausbilderUserId) {
+				$this->shareManager->acceptShare($share, $ausbilderUserId);
+			}
 		}
 
 		return $ordner;

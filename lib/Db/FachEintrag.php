@@ -15,12 +15,15 @@ use OCP\AppFramework\Db\Entity;
  * @method void setFachId(int $value)
  * @method float getStunden()
  * @method void setStunden(float $value)
+ * @method string|null getInhalt()
+ * @method void setInhalt(?string $value)
  */
 class FachEintrag extends Entity {
 	protected $eintragId;
 	protected $position;
 	protected $fachId;
 	protected $stunden;
+	protected $inhalt;
 
 	public function __construct() {
 		$this->addType('eintragId', 'integer');

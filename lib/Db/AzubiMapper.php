@@ -58,12 +58,18 @@ class AzubiMapper extends QBMapper {
 		return $this->findEntities($qb);
 	}
 
-	/** Azubis, deren Ausbildung bereits begonnen hat (fuer Reminder-/Digest-Jobs). @return Azubi[] */
+	/**
+	 * Azubis, deren Ausbildung bereits begonnen hat UND deren Status noch
+	 * aktiv ist (fuer Reminder-/Digest-Jobs) - ein beendeter Azubi soll
+	 * nicht weiter an Wocheneinreichung/Lehrjahr-Zuweisung erinnert werden.
+	 * @return Azubi[]
+	 */
 	public function findActiveOn(string $datum): array {
 		$qb = $this->db->getQueryBuilder();
 		$qb->select('*')
 			->from($this->getTableName())
-			->where($qb->expr()->lte('ausbildungsstart', $qb->createNamedParameter($datum, IQueryBuilder::PARAM_STR)));
+			->where($qb->expr()->lte('ausbildungsstart', $qb->createNamedParameter($datum, IQueryBuilder::PARAM_STR)))
+			->andWhere($qb->expr()->eq('status', $qb->createNamedParameter(Azubi::STATUS_AKTIV, IQueryBuilder::PARAM_STR)));
 		return $this->findEntities($qb);
 	}
 

@@ -114,7 +114,7 @@ class EintragService {
 
 	/**
 	 * Speichert/ueberschreibt einen Tageseintrag.
-	 * @param array<array{fachId:int,stunden:float}> $faecher nur bei tag_typ=berufsschule ausgewertet
+	 * @param array<array{fachId:int,stunden:float,inhalt?:?string}> $faecher nur bei tag_typ=berufsschule ausgewertet
 	 * @throws \DomainException wenn die Woche nicht bearbeitbar ist
 	 */
 	public function speichereEintrag(
@@ -153,6 +153,8 @@ class EintragService {
 				$zeile->setPosition($position++);
 				$zeile->setFachId((int)$fach['fachId']);
 				$zeile->setStunden((float)$fach['stunden']);
+				$inhalt = $fach['inhalt'] ?? null;
+				$zeile->setInhalt($inhalt !== null && $inhalt !== '' ? $inhalt : null);
 				$this->fachEintragMapper->insert($zeile);
 			}
 		}

@@ -134,8 +134,8 @@ onMounted(lade)
 		</NcNoteCard>
 
 		<div class="wochenend-schalter">
-			<NcCheckboxRadioSwitch :checked.sync="samstagAktiv" :disabled="!bearbeitbar">Samstag zuschalten</NcCheckboxRadioSwitch>
-			<NcCheckboxRadioSwitch :checked.sync="sonntagAktiv" :disabled="!bearbeitbar">Sonntag zuschalten</NcCheckboxRadioSwitch>
+			<NcCheckboxRadioSwitch v-model="samstagAktiv" :disabled="!bearbeitbar">Samstag zuschalten</NcCheckboxRadioSwitch>
+			<NcCheckboxRadioSwitch v-model="sonntagAktiv" :disabled="!bearbeitbar">Sonntag zuschalten</NcCheckboxRadioSwitch>
 		</div>
 
 		<TagEintrag

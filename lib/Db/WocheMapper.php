@@ -57,13 +57,32 @@ class WocheMapper extends QBMapper {
 		return $this->findEntity($qb);
 	}
 
-	/** @return Woche[] */
+	/**
+	 * @return Woche[] sortiert nach nachweis_nr (die gedruckte "Ausbildungs-
+	 * nachweis Nr." auf jeder PDF-Seite) - NICHT nach woche_von. Beides
+	 * faellt im Normalfall zusammen, kann aber auseinanderlaufen (z.B. wenn
+	 * rueckwirkend eine fruehere Kalenderwoche nachgetragen wird und dabei
+	 * eine hoehere nachweis_nr als eine bereits bestehende spaetere Woche
+	 * bekommt) - die gedruckte Seitenreihenfolge darf der gedruckten
+	 * Nummer dann nie widersprechen.
+	 */
 	public function findByExportId(int $exportId): array {
 		$qb = $this->db->getQueryBuilder();
 		$qb->select('*')
 			->from($this->getTableName())
 			->where($qb->expr()->eq('export_id', $qb->createNamedParameter($exportId, IQueryBuilder::PARAM_INT)))
-			->orderBy('woche_von', 'ASC');
+			->orderBy('nachweis_nr', 'ASC');
+		return $this->findEntities($qb);
+	}
+
+	/** @return Woche[] alle akzeptierten Wochen eines Azubis, sortiert nach nachweis_nr (Gesamtexport, s. findByExportId) */
+	public function findAkzeptiertByAzubi(int $azubiId): array {
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')
+			->from($this->getTableName())
+			->where($qb->expr()->eq('azubi_id', $qb->createNamedParameter($azubiId, IQueryBuilder::PARAM_INT)))
+			->andWhere($qb->expr()->eq('status', $qb->createNamedParameter(Woche::STATUS_AKZEPTIERT, IQueryBuilder::PARAM_STR)))
+			->orderBy('nachweis_nr', 'ASC');
 		return $this->findEntities($qb);
 	}
 

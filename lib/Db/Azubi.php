@@ -25,12 +25,17 @@ use OCP\AppFramework\Db\Entity;
  * @method void setNachname(?string $value)
  * @method string|null getLastReminderSentOn()
  * @method void setLastReminderSentOn(?string $value)
+ * @method string getStatus()
+ * @method void setStatus(string $value)
  * @method int getCreatedAt()
  * @method void setCreatedAt(int $value)
  * @method int getUpdatedAt()
  * @method void setUpdatedAt(int $value)
  */
 class Azubi extends Entity {
+	public const STATUS_AKTIV = 'aktiv';
+	public const STATUS_BEENDET = 'beendet';
+
 	protected $userId;
 	protected $ausbildungsberuf;
 	protected $ausbildungsstart;
@@ -40,6 +45,7 @@ class Azubi extends Entity {
 	protected $vorname;
 	protected $nachname;
 	protected $lastReminderSentOn;
+	protected $status;
 	protected $createdAt;
 	protected $updatedAt;
 

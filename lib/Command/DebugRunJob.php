@@ -37,20 +37,23 @@ class DebugRunJob extends Command {
 			->setDescription('Fuehrt einen der zeitgesteuerten Berichtsheft-Jobs sofort aus, optional unter Umgehung seiner Wochentag/Uhrzeit-Sperre (nur zum Testen).')
 			->addArgument('job', InputArgument::REQUIRED, 'weekly-reminder | ausbilder-digest | lehrjahr-abfrage')
 			->addOption('ignoriere-zeitfenster', null, InputOption::VALUE_NONE, 'Wochentag/Uhrzeit-Sperre fuer diesen Lauf ignorieren')
-			->addOption('heute', null, InputOption::VALUE_REQUIRED, 'Datum Y-m-d simulieren statt des echten heutigen Datums');
+			->addOption('heute', null, InputOption::VALUE_REQUIRED, 'Datum Y-m-d simulieren statt des echten heutigen Datums')
+			->addOption('stunde', null, InputOption::VALUE_REQUIRED, 'Nur ausbilder-digest: Stunde (0-23) simulieren statt der echten aktuellen Serverstunde');
 	}
 
 	protected function execute(InputInterface $input, OutputInterface $output): int {
 		$job = $input->getArgument('job');
 		$ignoriere = (bool)$input->getOption('ignoriere-zeitfenster');
 		$heute = $input->getOption('heute') ?? date('Y-m-d');
+		$stundeOption = $input->getOption('stunde');
+		$stunde = $stundeOption !== null ? (int)$stundeOption : (int)date('H');
 
 		switch ($job) {
 			case 'weekly-reminder':
 				$this->weeklyReminderJob->laufeFuer($heute, (int)(new \DateTimeImmutable($heute))->format('N'), $ignoriere);
 				break;
 			case 'ausbilder-digest':
-				$this->ausbilderDigestJob->laufeFuer($heute, (int)(new \DateTimeImmutable($heute))->format('N'), (int)date('H'), $ignoriere);
+				$this->ausbilderDigestJob->laufeFuer($heute, (int)(new \DateTimeImmutable($heute))->format('N'), $stunde, $ignoriere);
 				break;
 			case 'lehrjahr-abfrage':
 				$this->lehrjahrAbfrageJob->laufeFuer($heute, $ignoriere);

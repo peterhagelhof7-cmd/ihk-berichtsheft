@@ -5,12 +5,18 @@ declare(strict_types=1);
 namespace OCA\Berichtsheft\Controller;
 
 use OCA\Berichtsheft\AppInfo\Application;
+use OCA\Berichtsheft\Db\Azubi;
 use OCA\Berichtsheft\Db\AzubiMapper;
+use OCA\Berichtsheft\Db\Eintrag;
+use OCA\Berichtsheft\Db\EintragMapper;
+use OCA\Berichtsheft\Db\FachEintragMapper;
+use OCA\Berichtsheft\Db\FachMapper;
 use OCA\Berichtsheft\Db\Woche;
 use OCA\Berichtsheft\Db\WocheMapper;
 use OCA\Berichtsheft\Db\WocheRueckweisung;
 use OCA\Berichtsheft\Db\WocheRueckweisungMapper;
 use OCA\Berichtsheft\Service\AusbilderGruppenService;
+use OCA\Berichtsheft\Service\EintragService;
 use OCA\Berichtsheft\Service\MailService;
 use OCA\Berichtsheft\Service\WocheStatusService;
 use OCP\AppFramework\Controller;
@@ -36,6 +42,9 @@ class PruefungController extends Controller {
 		private WocheMapper $wocheMapper,
 		private WocheRueckweisungMapper $wocheRueckweisungMapper,
 		private AzubiMapper $azubiMapper,
+		private EintragMapper $eintragMapper,
+		private FachEintragMapper $fachEintragMapper,
+		private FachMapper $fachMapper,
 		private AusbilderGruppenService $ausbilderGruppenService,
 		private WocheStatusService $wocheStatusService,
 		private MailService $mailService,
@@ -179,6 +188,12 @@ class PruefungController extends Controller {
 	}
 
 	private function serialize(Woche $woche): array {
+		try {
+			$azubi = $this->azubiMapper->find($woche->getAzubiId());
+		} catch (DoesNotExistException) {
+			$azubi = null;
+		}
+
 		return [
 			'id' => $woche->getId(),
 			'azubiId' => $woche->getAzubiId(),
@@ -195,6 +210,45 @@ class PruefungController extends Controller {
 				],
 				$this->wocheRueckweisungMapper->findByWocheId($woche->getId()),
 			),
+			'eintraege' => $azubi !== null ? $this->serializeEintraege($azubi, $woche) : [],
 		];
+	}
+
+	/**
+	 * Die eigentlichen Tageseintraege der Woche - unverzichtbar fuer eine
+	 * echte inhaltliche Pruefung vor dem Akzeptieren/Zurueckweisen (bislang
+	 * fehlte das komplett, die Pruefung-Ansicht zeigte nur Metadaten).
+	 * @return array<array{datum:string,tagTyp:string,taetigkeit:?string,stunden:?float,faecher:array}>
+	 */
+	private function serializeEintraege(Azubi $azubi, Woche $woche): array {
+		$eintraege = $this->eintragMapper->findByAzubiAndDateRange(
+			$azubi->getId(),
+			$woche->getWocheVon(),
+			EintragService::wocheBisFuer($woche->getWocheVon()),
+		);
+
+		return array_map(function (Eintrag $eintrag): array {
+			return [
+				'datum' => $eintrag->getDatum(),
+				'tagTyp' => $eintrag->getTagTyp(),
+				'taetigkeit' => $eintrag->getTaetigkeit(),
+				'stunden' => $eintrag->getStunden(),
+				'faecher' => $eintrag->getTagTyp() === Eintrag::TAG_TYP_BERUFSSCHULE
+					? array_map(function ($fe) {
+						$fach = null;
+						try {
+							$fach = $this->fachMapper->find($fe->getFachId());
+						} catch (\Throwable) {
+							// Fach zwischenzeitlich geloescht - Name entfaellt.
+						}
+						return [
+							'fachName' => $fach?->getName() ?? '?',
+							'stunden' => $fe->getStunden(),
+							'inhalt' => $fe->getInhalt(),
+						];
+					}, $this->fachEintragMapper->findByEintragId($eintrag->getId()))
+					: [],
+			];
+		}, $eintraege);
 	}
 }

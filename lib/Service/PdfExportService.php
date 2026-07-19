@@ -59,14 +59,17 @@ class PdfExportService {
 		return "$basis-$nn - KW$kw-$jahr.pdf";
 	}
 
-	/** @param Woche[] $wochen genau 4, sortiert nach woche_von (WocheMapper::findByExportId liefert das bereits) */
+	/** @param Woche[] $wochen genau 4, sortiert nach nachweis_nr (WocheMapper::findByExportId liefert das bereits) */
 	public function erzeugeExport(Azubi $azubi, Export $export, array $wochen): void {
 		$appPath = Server::get(IAppManager::class)->getAppPath(Application::APP_ID);
 		$azubiName = self::azubiDateinameBasis($azubi, $this->userManager);
 
 		$html = '';
 		foreach ($wochen as $index => $woche) {
-			$html .= $this->renderWoche($appPath, $azubi, $woche, $azubiName, $index < count($wochen) - 1);
+			// page-break-before (statt -after auf allen ausser der letzten
+			// Sektion) - dompdf haengt bei "page-break-after: always" auf der
+			// letzten Sektion sonst eine leere Extra-Seite ans PDF-Ende an.
+			$html .= $this->renderWoche($appPath, $azubi, $woche, $azubiName, $index > 0);
 		}
 
 		$options = new DompdfOptions();
@@ -79,7 +82,8 @@ class PdfExportService {
 		$this->fileStorageService->speicherePdf($azubi, $this->dateiname($azubi, $export), $dompdf->output());
 	}
 
-	private function renderWoche(string $appPath, Azubi $azubi, Woche $woche, string $azubiName, bool $seitenumbruchDanach): string {
+	/** Oeffentlich, damit GesamtExportService dieselbe Wochen-Vorlage fuer den IHK-Gesamtnachweis wiederverwenden kann. */
+	public function renderWoche(string $appPath, Azubi $azubi, Woche $woche, string $azubiName, bool $seitenumbruchDavor): string {
 		$eintraege = $this->eintragMapper->findByAzubiAndDateRange($azubi->getId(), $woche->getWocheVon(), $woche->getWocheBis());
 		$eintraegeByDatum = [];
 		foreach ($eintraege as $eintrag) {
@@ -117,7 +121,7 @@ class PdfExportService {
 			'akzeptiertVonName' => $woche->getAkzeptiertVonName() ?? '',
 			'akzeptiertAmFormatiert' => $woche->getAkzeptiertAm() !== null ? date('d.m.Y H:i', $woche->getAkzeptiertAm()) : '',
 			'bemerkungen' => $woche->getBemerkungen() ?? '',
-			'seitenumbruchDanach' => $seitenumbruchDanach,
+			'seitenumbruchDavor' => $seitenumbruchDavor,
 		];
 
 		return $this->renderTemplate($appPath . '/templates/pdf/nachweis-woche.php', $vars);
@@ -136,7 +140,11 @@ class PdfExportService {
 				} catch (\Throwable) {
 					// Fach zwischenzeitlich geloescht - Name entfaellt, Stunden bleiben sichtbar.
 				}
-				$zeilen[] = htmlspecialchars(($fach?->getName() ?? '?') . ': ' . $fachEintrag->getStunden() . 'h', ENT_QUOTES, 'UTF-8');
+				$zeile = ($fach?->getName() ?? '?') . ': ' . $fachEintrag->getStunden() . 'h';
+				if ($fachEintrag->getInhalt() !== null) {
+					$zeile .= ' – ' . $fachEintrag->getInhalt();
+				}
+				$zeilen[] = htmlspecialchars($zeile, ENT_QUOTES, 'UTF-8');
 			}
 			return implode('<br>', $zeilen);
 		}

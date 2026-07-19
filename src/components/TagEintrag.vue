@@ -7,7 +7,7 @@ import NcButton from '@nextcloud/vue/components/NcButton'
 import FachZeile from './FachZeile.vue'
 
 interface Fach { id: number, name: string }
-interface FachEintragWert { fachId: number | null, stunden: number | null }
+interface FachEintragWert { fachId: number | null, stunden: number | null, inhalt: string | null }
 interface EintragWert {
 	tagTyp: string
 	taetigkeit: string | null
@@ -44,7 +44,7 @@ const brauchtFaecher = computed(() => lokal.value.tagTyp === 'berufsschule')
 const nurLabel = computed(() => ['feiertag', 'urlaub', 'krankheit'].includes(lokal.value.tagTyp))
 
 function fachHinzufuegen() {
-	lokal.value.faecher.push({ fachId: null, stunden: null })
+	lokal.value.faecher.push({ fachId: null, stunden: null, inhalt: null })
 }
 function fachAktualisieren(index: number, wert: FachEintragWert) {
 	lokal.value.faecher[index] = wert
@@ -63,14 +63,20 @@ function speichern() {
 		<h4>{{ label }} — {{ datum }}</h4>
 
 		<NcSelect
-			v-model="lokal.tagTyp"
+			:model-value="TAGTYPEN.find(t => t.id === lokal.tagTyp) ?? null"
 			:disabled="!bearbeitbar"
-			:options="TAGTYPEN.map(t => t.id)"
-			:get-option-label="(id) => TAGTYPEN.find(t => t.id === id)?.label ?? id" />
+			:options="TAGTYPEN"
+			label="label"
+			@update:model-value="(t) => { lokal.tagTyp = t ? t.id : 'betrieb' }" />
 
 		<template v-if="brauchtTaetigkeit">
 			<NcTextArea v-model="lokal.taetigkeit" :disabled="!bearbeitbar" placeholder="Ausgefuehrte Arbeiten, Unterweisungen, betrieblicher Unterricht, usw." />
-			<NcTextField :value.sync="lokal.stunden" type="number" :disabled="!bearbeitbar" label="Stunden" />
+			<NcTextField
+				:model-value="lokal.stunden?.toString() ?? ''"
+				type="number"
+				:disabled="!bearbeitbar"
+				label="Stunden"
+				@update:model-value="(v) => { lokal.stunden = v === '' ? null : Number(v) }" />
 		</template>
 
 		<template v-else-if="brauchtFaecher">
@@ -79,6 +85,7 @@ function speichern() {
 				:key="i"
 				:model-value="fach"
 				:verfuegbare-faecher="verfuegbareFaecher"
+				:bearbeitbar="bearbeitbar"
 				@update:model-value="(w) => fachAktualisieren(i, w)"
 				@remove="fachEntfernen(i)" />
 			<NcButton v-if="bearbeitbar" @click="fachHinzufuegen">Fach hinzufuegen</NcButton>

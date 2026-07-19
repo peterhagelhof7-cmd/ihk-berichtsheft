@@ -10,6 +10,12 @@ use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
 
+// Nextcloud autoloadet nur den eigenen OCA\Berichtsheft-Namespace
+// automatisch - gebundelte Composer-Pakete (dompdf/dompdf u.a., s.
+// composer.json) braucht der Composer-eigene Autoloader, den jede App
+// selbst einbinden muss.
+require_once __DIR__ . '/../../vendor/autoload.php';
+
 class Application extends App implements IBootstrap {
 	public const APP_ID = 'berichtsheft';
 

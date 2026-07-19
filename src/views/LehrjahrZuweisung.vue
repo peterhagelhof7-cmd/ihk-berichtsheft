@@ -61,8 +61,8 @@ onMounted(lade)
 		</table>
 
 		<div class="neu-formular">
-			<NcTextField :value.sync="neuGueltigAb" type="date" label="Gueltig ab" />
-			<NcTextField :value.sync="neuLehrjahr" type="number" label="Lehrjahr" />
+			<NcTextField v-model="neuGueltigAb" type="date" label="Gueltig ab" />
+			<NcTextField v-model="neuLehrjahr" type="number" label="Lehrjahr" />
 			<NcButton type="primary" @click="anlegen">Zuweisung anlegen</NcButton>
 		</div>
 	</NcDialog>

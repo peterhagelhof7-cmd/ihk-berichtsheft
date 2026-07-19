@@ -62,8 +62,8 @@ async function speichereDigestPraeferenz() {
 				Erscheint auf dem Deckblatt deines Berichtshefts.
 			</p>
 			<div class="formular">
-				<NcTextField :value.sync="vorname" label="Vorname" />
-				<NcTextField :value.sync="nachname" label="Nachname" />
+				<NcTextField v-model="vorname" label="Vorname" />
+				<NcTextField v-model="nachname" label="Nachname" />
 				<NcButton type="primary" @click="speicherePersoenlicheAngaben">Speichern</NcButton>
 				<NcNoteCard v-if="angabenGespeichert" type="success">Gespeichert.</NcNoteCard>
 			</div>
@@ -78,11 +78,16 @@ async function speichereDigestPraeferenz() {
 			</p>
 			<div class="formular">
 				<NcSelect
-					v-model="digestWochentag"
-					:options="WOCHENTAGE.map(w => w.id)"
-					:get-option-label="(id) => WOCHENTAGE.find(w => w.id === id)?.label ?? 'Standard (Montag)'"
-					label="Wochentag" />
-				<NcTextField :value.sync="digestStunde" type="number" label="Uhrzeit-Stunde (0-23, leer = Standard 10 Uhr)" />
+					:model-value="WOCHENTAGE.find(w => w.id === digestWochentag) ?? null"
+					:options="WOCHENTAGE"
+					label="label"
+					input-label="Wochentag"
+					@update:model-value="(w) => { digestWochentag = w ? w.id : null }" />
+				<NcTextField
+					:model-value="digestStunde?.toString() ?? ''"
+					type="number"
+					label="Uhrzeit-Stunde (0-23, leer = Standard 10 Uhr)"
+					@update:model-value="(v) => { digestStunde = v === '' ? null : Number(v) }" />
 				<NcButton type="primary" @click="speichereDigestPraeferenz">Speichern</NcButton>
 				<NcNoteCard v-if="digestGespeichert" type="success">Gespeichert.</NcNoteCard>
 			</div>

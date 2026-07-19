@@ -12,6 +12,11 @@
 			"OCA\\Berichtsheft\\": "lib/"
 		}
 	},
+	"autoload-dev": {
+		"psr-4": {
+			"OCP\\": "vendor/nextcloud/ocp/OCP/"
+		}
+	},
 	"scripts": {
 		"post-install-cmd": [
 			"@composer bin all install --ansi"
@@ -32,6 +37,7 @@
 	},
 	"require-dev": {
 		"nextcloud/ocp": "dev-stable30",
+		"phpunit/phpunit": "^11.0",
 		"roave/security-advisories": "dev-latest"
 	},
 	"config": {

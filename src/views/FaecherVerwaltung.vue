@@ -71,8 +71,8 @@ onMounted(lade)
 					<td>{{ fach.name }}</td>
 					<td v-for="lj in VERFUEGBARE_LEHRJAHRE" :key="lj">
 						<NcCheckboxRadioSwitch
-							:checked="fach.lehrjahre.includes(lj)"
-							@update:checked="lehrjahrUmschalten(fach, lj)" />
+							:model-value="fach.lehrjahre.includes(lj)"
+							@update:model-value="lehrjahrUmschalten(fach, lj)" />
 					</td>
 					<td>
 						<NcButton @click="loeschen(fach.id)">Loeschen</NcButton>
@@ -82,13 +82,13 @@ onMounted(lade)
 		</table>
 
 		<div class="neu-formular">
-			<NcTextField :value.sync="neuName" label="Neues Fach" />
+			<NcTextField v-model="neuName" label="Neues Fach" />
 			<div class="lehrjahr-checkboxen">
 				<NcCheckboxRadioSwitch
 					v-for="lj in VERFUEGBARE_LEHRJAHRE"
 					:key="lj"
-					:checked="neuLehrjahre.includes(lj)"
-					@update:checked="(v) => { neuLehrjahre = v ? [...neuLehrjahre, lj] : neuLehrjahre.filter(x => x !== lj) }">
+					:model-value="neuLehrjahre.includes(lj)"
+					@update:model-value="(v) => { neuLehrjahre = v ? [...neuLehrjahre, lj] : neuLehrjahre.filter(x => x !== lj) }">
 					Lehrjahr {{ lj }}
 				</NcCheckboxRadioSwitch>
 			</div>
