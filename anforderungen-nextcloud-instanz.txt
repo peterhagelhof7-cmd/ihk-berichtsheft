@@ -3,6 +3,11 @@ für die Entwicklung und den produktiven Einsatz der "Berichtsheft"-App
 (digitales IHK-Berichtsheft für Auszubildende in IT-Berufen)
 ================================================================
 
+[Archiviert: urspruengliche Anfrage an Peter, Antworten bereits
+eingearbeitet in docs/INSTALL-ADMIN-GUIDE.md Abschnitt 1. Hier nur noch
+als Verlauf erhalten.]
+
+
 1. NEXTCLOUD-VERSION
    Eine aktuell vom Nextcloud-Projekt offiziell unterstützte Version
    (Stand Juli 2026 voraussichtlich Nextcloud 30-32er-Reihe oder neuer).
