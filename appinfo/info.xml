@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	  xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
+	<id>berichtsheft</id>
+	<name>Berichtsheft</name>
+	<summary>Digitales IHK-Berichtsheft für Auszubildende in IT-Berufen</summary>
+	<description><![CDATA[Digitales Berichtsheft (Ausbildungsnachweis) für Auszubildende in den
+neugeordneten IT-Berufen nach AO2020. Ersetzt handschriftliche/PDF-basierte
+Wochenberichte durch einen Einreichen/Prüfen-Workflow direkt in Nextcloud:
+Azubis tragen täglich ihre Tätigkeiten ein (inkl. Berufsschule je Fach,
+Feiertag/Urlaub/Krankheit, optional Samstag/Sonntag), reichen die Woche zur
+Prüfung ein, ein Ausbilder akzeptiert oder weist mit Kommentar zurück. Alle
+Ausbilder einer Instanz sind gleichberechtigt (Vertretungsfall), ein pro
+Azubi bestimmter Berichtsheft-Verantwortlicher erhält die
+Einreichungs-Benachrichtigung. Alle 4 Wochen wird automatisch ein
+mehrseitiges, IHK-konformes PDF erzeugt, sobald alle Wochen akzeptiert sind
+- inklusive eines einmaligen Deckblatts mit Name, Betriebsadresse,
+Ausbildungsberuf/Fachrichtung, Ausbildungsbetrieb und verantwortlichem
+Ausbilder. Jeder Betrieb installiert die App eigenständig in seiner eigenen
+Nextcloud-Instanz.]]></description>
+	<version>0.1.0</version>
+	<licence>agpl</licence>
+	<author mail="" homepage="">Berichtsheft-Projekt</author>
+	<namespace>Berichtsheft</namespace>
+	<category>organization</category>
+	<category>office</category>
+	<dependencies>
+		<nextcloud min-version="30" max-version="34"/>
+	</dependencies>
+	<navigations>
+		<navigation>
+			<id>berichtsheft</id>
+			<name>Berichtsheft</name>
+			<route>berichtsheft.page.index</route>
+			<icon>app.svg</icon>
+			<type>link</type>
+		</navigation>
+	</navigations>
+	<settings>
+		<admin>OCA\Berichtsheft\Settings\AdminSettings</admin>
+		<admin-section>OCA\Berichtsheft\Settings\AdminSection</admin-section>
+		<personal>OCA\Berichtsheft\Settings\PersonalSettings</personal>
+		<personal-section>OCA\Berichtsheft\Settings\PersonalSection</personal-section>
+	</settings>
+	<background-jobs>
+		<job>OCA\Berichtsheft\BackgroundJob\WeeklyReminderJob</job>
+		<job>OCA\Berichtsheft\BackgroundJob\AusbilderDigestJob</job>
+		<job>OCA\Berichtsheft\BackgroundJob\ExportSchedulerJob</job>
+		<job>OCA\Berichtsheft\BackgroundJob\ExportGeneratorJob</job>
+		<job>OCA\Berichtsheft\BackgroundJob\LehrjahrAbfrageJob</job>
+	</background-jobs>
+	<commands>
+		<command>OCA\Berichtsheft\Command\DebugRunJob</command>
+	</commands>
+</info>

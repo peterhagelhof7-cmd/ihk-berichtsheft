@@ -1,0 +1,70 @@
+ANFORDERUNGEN AN DIE NEXTCLOUD-INSTANZ
+für die Entwicklung und den produktiven Einsatz der "Berichtsheft"-App
+(digitales IHK-Berichtsheft für Auszubildende in IT-Berufen)
+================================================================
+
+1. NEXTCLOUD-VERSION
+   Eine aktuell vom Nextcloud-Projekt offiziell unterstützte Version
+   (Stand Juli 2026 voraussichtlich Nextcloud 30-32er-Reihe oder neuer).
+   -> Bitte konkrete Versionsnummer mitteilen.
+
+2. PHP-VERSION
+   Kompatibel zur gewählten Nextcloud-Version, typischerweise PHP 8.2-8.4.
+
+3. SHELL-/SSH-ZUGRIFF AUF DEN SERVER, INKL. "occ"-KOMMANDOZEILE
+   (Nextclouds eigenes Administrations-CLI-Werkzeug)
+   Das ist der wichtigste Einzelpunkt - ohne SSH/occ-Zugriff sind
+   Datenbank-Migrationen, Background-Job-Tests und App-Installation
+   deutlich umständlicher bis teilweise nicht möglich.
+   -> Falls kein SSH-Zugriff möglich ist, bitte explizit mitteilen,
+      welcher alternative Verwaltungszugriff existiert
+      (z.B. nur Web-Admin-Oberfläche, FTP/SFTP für Dateien).
+
+4. COMPOSER- UND NODE/NPM-FÄHIGE BUILD-UMGEBUNG
+   Entweder direkt auf dem Server verfügbar, oder die App wird lokal
+   gebaut und nur das fertige Ergebnis hochgeladen (dann reicht
+   SFTP/SSH für den reinen Dateitransfer).
+   -> Bitte mitteilen, ob Composer auf dem Server selbst zur
+      Verfügung steht.
+
+5. MAILVERSAND KONFIGURIERT (SMTP)
+   Die App verschickt sowohl In-App- als auch E-Mail-Benachrichtigungen
+   (u.a. für die Zurückweisungs-Mail mit Ausbilder-Kommentar).
+   -> Bitte mitteilen, ob auf der Instanz bereits ein SMTP-Versand
+      eingerichtet ist oder ob das noch nachgeholt werden muss.
+	  Das richte ich dann ein - Peter
+
+6. CRON-AUSFÜHRUNG
+   Nextclouds Hintergrundjobs benötigen einen regelmäßig laufenden
+   System-Cron (empfohlen: alle 5 Minuten, "cron.php" per Cronjob
+   statt "AJAX"-Modus).
+   -> Bitte bestätigen, dass ein System-Cronjob eingerichtet werden kann.
+
+7. MÖGLICHKEIT, EIGENE/DRITTANBIETER-APPS ZU INSTALLIEREN
+   ("apps/"- bzw. "apps-extra/"-Verzeichnis beschreibbar, bzw. per
+   Admin-Oberfläche "Nicht aus dem App Store"-Apps aktivierbar).
+   Manche verwalteten/gehosteten Nextcloud-Angebote schränken das ein.
+   -> Bitte ausdrücklich bestätigen lassen, dass eine selbst
+      entwickelte App installiert werden darf.
+
+8. HTTPS MIT GÜLTIGEM ZERTIFIKAT
+   Unter einer festen Domain/Subdomain.
+   Darf gerne eine generische Domain sein, mit Lets Encypt Zertifikat -Peter
+
+9. ADMINISTRATOR-ZUGANG
+   (Benutzername/Passwort oder App-Passwort) für die
+   Nextcloud-Weboberfläche, getrennt vom SSH-Zugang.
+   hier Klar 2 Accounts, einen für uns, einen für den KI-Agenten - Peter
+
+10. DATENSCHUTZ-HINWEIS
+    Es werden echte personenbezogene Ausbildungsdaten von Azubis
+    verarbeitet (Name, Tätigkeitsbeschreibungen, Ausbildungsberuf,
+    Anwesenheitsstruktur, Einreich-/Prüfzeitstempel).
+    -> Bitte vom Anbieter bestätigen lassen, wo der Server steht
+       (EU-Rechenzentrum empfohlen) und ob ein
+       Auftragsverarbeitungsvertrag (AVV) angeboten wird.
+
+================================================================
+Rückmeldung bitte zu allen 10 Punkten, insbesondere Punkt 3 (SSH/occ)
+und Punkt 7 (Erlaubnis für selbstentwickelte Apps) — davon hängt ab,
+wie die Entwicklungsumgebung aufgesetzt wird.
