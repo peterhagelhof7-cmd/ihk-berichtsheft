@@ -126,7 +126,7 @@ eine normale Nextcloud-Gruppe:
 
 ```
 sudo -u www-data php occ group:add berichtsheft-ausbilder
-sudo -u www-data php occ group:add-member berichtsheft-ausbilder <Benutzername>
+sudo -u www-data php occ group:adduser berichtsheft-ausbilder <Benutzername>
 ```
 
 (`berichtsheft-ausbilder` ist der Standard-Gruppenname. Ein anderer Name
