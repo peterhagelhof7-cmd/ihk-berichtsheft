@@ -37,8 +37,6 @@ Nextcloud-Instanz.]]></description>
 		</navigation>
 	</navigations>
 	<settings>
-		<admin>OCA\Berichtsheft\Settings\AdminSettings</admin>
-		<admin-section>OCA\Berichtsheft\Settings\AdminSection</admin-section>
 		<personal>OCA\Berichtsheft\Settings\PersonalSettings</personal>
 		<personal-section>OCA\Berichtsheft\Settings\PersonalSection</personal-section>
 	</settings>

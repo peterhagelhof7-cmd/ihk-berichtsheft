@@ -25,10 +25,10 @@ use OCP\IUserSession;
 
 /**
  * Verwaltung der Azubi-Stammdaten durch die Ausbilder-Gruppe. Die
- * Sichtbarkeit der zugehoerigen Admin-Oberflaeche wird bereits durch
- * IDelegatedSettings (AdminSettings) geregelt, hier zusaetzlich eine
- * eigene Berechtigungspruefung je Endpunkt (Verteidigung in der Tiefe -
- * ein direkter API-Aufruf ohne die UI muss ebenso abgelehnt werden).
+ * Verwaltungsoberflaeche in der Haupt-App ist bereits an istAusbilder
+ * gebunden, hier zusaetzlich eine eigene Berechtigungspruefung je Endpunkt
+ * (Verteidigung in der Tiefe - ein direkter API-Aufruf ohne die UI muss
+ * ebenso abgelehnt werden).
  */
 class AzubiController extends Controller {
 	public function __construct(

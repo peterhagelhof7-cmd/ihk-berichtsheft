@@ -23,12 +23,11 @@ Repository: `https://github.com/peterhagelhof7-cmd/ihk-berichtsheft` (privat)
 3. [App auf dem Server platzieren](#3-app-auf-dem-server-platzieren)
 4. [App aktivieren](#4-app-aktivieren)
 5. [Ausbilder-Gruppe anlegen](#5-ausbilder-gruppe-anlegen)
-6. [Delegation der Admin-Oberfläche](#6-delegation-der-admin-oberfläche-wichtiger-manueller-schritt)
-7. [Stammdaten einrichten](#7-stammdaten-einrichten)
-8. [Azubis aktivieren und verwalten](#8-azubis-aktivieren-und-verwalten)
-9. [Funktion prüfen](#9-funktion-prüfen)
-10. [Laufender Betrieb](#10-laufender-betrieb)
-11. [Häufige Probleme](#11-häufige-probleme)
+6. [Stammdaten einrichten](#6-stammdaten-einrichten)
+7. [Azubis aktivieren und verwalten](#7-azubis-aktivieren-und-verwalten)
+8. [Funktion prüfen](#8-funktion-prüfen)
+9. [Laufender Betrieb](#9-laufender-betrieb)
+10. [Häufige Probleme](#10-häufige-probleme)
 
 
 ## 1. Anforderungen an die Instanz
@@ -37,13 +36,12 @@ Repository: `https://github.com/peterhagelhof7-cmd/ihk-berichtsheft` (privat)
 |---|---|---|
 | Nextcloud-Version | 30 oder neuer (getestet: 34.0.1) | `appinfo/info.xml` erklärt Kompatibilität bis NC 34 |
 | PHP-Version | 8.2 oder neuer (getestet: 8.5.4) | `composer.json` verlangt `^8.2` |
-| SSH-/`occ`-Zugriff | zwingend erforderlich | Migration, Gruppenanlage, Delegation, Fehlersuche laufen über `occ`; ohne SSH ist praktisch keine der folgenden Schritte durchführbar |
+| SSH-/`occ`-Zugriff | zwingend erforderlich | Migration, Gruppenanlage, Fehlersuche laufen über `occ`; ohne SSH ist praktisch keine der folgenden Schritte durchführbar |
 | Composer + Node/npm | einmalig, zum Bauen | kann auch auf einem separaten Build-Rechner erfolgen (siehe Abschnitt 2) — auf dem Server selbst danach nicht mehr nötig |
 | System-Cronjob | alle 5 Minuten, `cron.php` | ohne Cron laufen Erinnerungen, Ausbilder-Digest, PDF-Export und Lehrjahresabfrage nicht automatisch |
 | SMTP-Mailversand | in Nextcloud eingerichtet | die App verschickt zusätzlich zu In-App-Benachrichtigungen auch E-Mails (u. a. die Zurückweisungs-Mail mit Ausbilder-Kommentar) |
 | Erlaubnis für eigene Apps | „nicht aus dem App Store"-Apps müssen aktivierbar sein | bei manchen verwalteten/gehosteten Angeboten eingeschränkt — im Zweifel beim Hoster erfragen |
 | HTTPS mit gültigem Zertifikat | feste Domain/Subdomain, Let's-Encrypt reicht | Grundvoraussetzung jeder Nextcloud-Instanz |
-| Administrator-Zugang | eigener Account, getrennt vom SSH-Zugang | für Schritt 6 (Delegation) zwingend ein echter Nextcloud-Administrator nötig |
 | Datenschutz | echte personenbezogene Ausbildungsdaten (Name, Tätigkeitsbeschreibungen, Anwesenheit, Zeitstempel) | Serverstandort (EU empfohlen) und ggf. Auftragsverarbeitungsvertrag vorab klären |
 
 Kein Datenbank-Sondersystem nötig — die App nutzt ausschließlich die von
@@ -139,35 +137,18 @@ Krankheits-/Urlaubsvertretung).
 **Wichtig:** Ein Nutzer, der Mitglied dieser Gruppe ist, kann in der App
 nicht gleichzeitig als Azubi aktiviert werden (Dual-Rollen-Ausschluss, um
 Selbst-Abnahme des eigenen Berichtshefts auszuschließen) — siehe
-Abschnitt 8.
+Abschnitt 7.
 
 
-## 6. Delegation der Admin-Oberfläche (wichtiger manueller Schritt)
+## 6. Stammdaten einrichten
 
-Damit die Ausbilder-Gruppe die Berichtsheft-Verwaltungsoberfläche (Azubis
-aktivieren, Fächer pflegen, Stammdaten setzen) OHNE vollen
-Nextcloud-Administrator-Status sehen kann, muss ein echter
-Nextcloud-Administrator diese Einstellungsseite einmalig an die Gruppe
-delegieren:
-
-1. Als Administrator in der Nextcloud-Weboberfläche einloggen
-2. Einstellungen → Administration → Grundeinstellungen
-3. Dort erscheint „Berichtsheft" in der Liste der delegierbaren
-   Einstellungsbereiche
-4. Die Gruppe `berichtsheft-ausbilder` (oder den gewählten Gruppennamen)
-   dort eintragen
-
-Dieser Schritt kann NICHT automatisch durch die App erledigt werden — er
-muss nach jeder Installation einmal manuell durch einen echten
-Administrator erfolgen.
-
-
-## 7. Stammdaten einrichten
-
-Als Mitglied der Ausbilder-Gruppe einloggen, zur
-Berichtsheft-Verwaltungsoberfläche navigieren (Einstellungen →
-Administration → Berichtsheft, nach Schritt 6 sichtbar) und folgende
-Angaben einmalig setzen:
+Jedes Mitglied der Ausbilder-Gruppe sieht die Verwaltungsoberfläche direkt
+in der Haupt-App — eine Delegation durch einen echten
+Nextcloud-Administrator ist nicht nötig, die Sichtbarkeit hängt
+ausschließlich an der Gruppenmitgliedschaft aus Schritt 5. Als Mitglied
+der Ausbilder-Gruppe einloggen, über das „Berichtsheft"-App-Icon in der
+oberen Leiste öffnen, im Menü „Verwaltung" auswählen und folgende Angaben
+einmalig setzen:
 
 - Ausbildungsbetrieb (rechtliche Firmierung) — erscheint auf dem
   Deckblatt jedes Azubi-Berichtshefts
@@ -184,12 +165,12 @@ Fach mit Unterrichtsinhalt-Freitext, den der Azubi später beim
 Tageseintrag ausfüllen kann.
 
 
-## 8. Azubis aktivieren und verwalten
+## 7. Azubis aktivieren und verwalten
 
 Für jeden Auszubildenden muss zunächst ein reguläres
 Nextcloud-Benutzerkonto existieren (falls noch nicht vorhanden, wie
 gewohnt über Einstellungen → Benutzer anlegen). Danach in der
-Berichtsheft-Verwaltungsoberfläche:
+Berichtsheft-Verwaltungsoberfläche (App-Icon → „Verwaltung"):
 
 1. Den Benutzer aus der Liste wählen und „Als Azubi aktivieren"
    anklicken — **Hinweis:** Mitglieder der Ausbilder-Gruppe erscheinen
@@ -229,7 +210,7 @@ aktivem Azubi):
   einsehbar — keine gesonderte Freigabe nötig.
 
 
-## 9. Funktion prüfen
+## 8. Funktion prüfen
 
 - Als Azubi einloggen, unter „Berichtsheft" (App-Navigation) die aktuelle
   Woche mit Einträgen füllen und einreichen
@@ -247,10 +228,10 @@ aktivem Azubi):
   Nummerierung)
 
 Für gezieltes Testen der drei zeitgesteuerten Hintergrundjobs, ohne auf
-den echten Wochentag/Termin zu warten, siehe Abschnitt 11.
+den echten Wochentag/Termin zu warten, siehe Abschnitt 10.
 
 
-## 10. Laufender Betrieb
+## 9. Laufender Betrieb
 
 - **Updates**: neue Version aus Git ziehen, erneut `composer install
   --no-dev --optimize-autoloader` und `npm install && npm run build`
@@ -267,7 +248,7 @@ den echten Wochentag/Termin zu warten, siehe Abschnitt 11.
   unten) und danach `composer test:unit`
 
 
-## 11. Häufige Probleme
+## 10. Häufige Probleme
 
 - **Erinnerungen/Digest/Export kommen nicht automatisch**: Cronjob
   prüfen (`occ background-job:list` zeigt registrierte Jobs,
@@ -286,9 +267,9 @@ den echten Wochentag/Termin zu warten, siehe Abschnitt 11.
 
 - **Keine E-Mails**: SMTP-Konfiguration in den Nextcloud-Grundeinstellungen
   prüfen (Testmail von dort verschicken)
-- **Ausbilder sieht die Verwaltungsoberfläche nicht**: Schritt 6
-  (Delegation) wurde vermutlich übersprungen, oder der Benutzer ist nicht
-  Mitglied der in Schritt 7 hinterlegten Gruppe
+- **Ausbilder sieht die Verwaltungsoberfläche nicht**: der Benutzer ist
+  vermutlich nicht Mitglied der in Schritt 5 angelegten (bzw. in Schritt 6
+  ggf. umbenannten) Ausbilder-Gruppe — mit `occ group:list` prüfen
 - **Ein Ausbilder soll als Azubi aktiviert werden**: geht absichtlich
   nicht (weder über die Oberfläche noch direkt über die API) — Mitglieder
   der Ausbilder-Gruppe müssten dafür zunächst aus der Gruppe entfernt

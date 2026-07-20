@@ -10,14 +10,14 @@ mindestens ein Azubi zeitgleich seinen eigenen Test durchführt.
 **Rolle:** Du benötigst einen Nextcloud-Account, der Mitglied der
 Ausbilder-Gruppe (`berichtsheft-ausbilder`) ist. Falls das noch nicht
 eingerichtet ist, den Systemverwalter darum bitten (siehe
-`docs/INSTALL-ADMIN-GUIDE.md`, Abschnitt 5/6).
+`docs/INSTALL-ADMIN-GUIDE.md`, Abschnitt 5).
 
 
 ## Test 1 — Stammdaten einrichten (nur einmalig nötig)
 
-1. Einstellungen → Administration → Berichtsheft öffnen (erscheint hier
-   nur, wenn die Delegation bereits vom Systemverwalter eingerichtet
-   wurde)
+1. Über das „Berichtsheft"-App-Icon in der oberen Leiste öffnen, im
+   Menü „Verwaltung" auswählen (erscheint automatisch für jedes
+   Mitglied der Ausbilder-Gruppe, keine gesonderte Freischaltung nötig)
 2. Ausbildungsbetrieb, Betriebsadresse und Ausbildungsjahr-Start prüfen
    bzw. eintragen
 3. Prüfen: Erscheinen diese Angaben später korrekt auf dem Deckblatt
@@ -97,7 +97,7 @@ Falls mehr als ein Ausbilder in der Gruppe ist:
 Diese laufen im echten Betrieb automatisch (per Cronjob) zu festen
 Terminen — für den Test kann der Systemverwalter sie über die
 Kommandozeile sofort auslösen (siehe `docs/INSTALL-ADMIN-GUIDE.md`,
-Abschnitt 11). Mit ihm absprechen, wenn du Folgendes testen willst:
+Abschnitt 10). Mit ihm absprechen, wenn du Folgendes testen willst:
 
 - **Wöchentliche Erinnerung** an Azubis, die ihre Woche noch nicht
   eingereicht haben

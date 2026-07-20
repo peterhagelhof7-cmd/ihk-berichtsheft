@@ -2,6 +2,7 @@
 /vendor-bin/
 /node_modules/
 /js/
+/css/
 /build/
 /.phpunit.cache/
 composer.lock
