@@ -130,14 +130,46 @@ class NotenService {
 		$eintraege = $this->eintragMapper->findByAzubiAndDateRange($azubi->getId(), $endendeZuweisung->getGueltigAb(), $bisInklusiv);
 		$faecher = $this->faecherTabelle($endendeZuweisung->getLehrjahr(), $eintraege);
 
-		$appPath = Server::get(IAppManager::class)->getAppPath(Application::APP_ID);
-		$azubiName = PdfExportService::azubiDateinameBasis($azubi, $this->userManager);
+		$dateiname = sprintf('%s - Notenschnitt Lehrjahr %d.pdf', PdfExportService::azubiDateinameBasis($azubi, $this->userManager), $endendeZuweisung->getLehrjahr());
+		$this->renderUndSpeichere(
+			$azubi,
+			$endendeZuweisung->getLehrjahr(),
+			$endendeZuweisung->getGueltigAb(),
+			$bisInklusiv,
+			$faecher,
+			$dateiname,
+		);
+	}
 
+	/**
+	 * Aktuelle (laufende) Notentabelle als PDF, ueberschreibt jeweils die
+	 * vorherige Fassung unter demselben festen Dateinamen - so hat der
+	 * Azubi jederzeit eine aktuelle Uebersicht im Dateibereich, nicht nur
+	 * beim Lehrjahrende. Wird von ExportGeneratorJob nach jedem regulaeren
+	 * 4-Wochen-Export mit ausgeloest, damit beide PDFs im selben Rhythmus
+	 * aktuell bleiben.
+	 * @throws DoesNotExistException wenn dem Azubi noch kein Lehrjahr zugewiesen ist
+	 */
+	public function aktualisiereAktuelleUebersicht(Azubi $azubi): void {
+		$tabelle = $this->aktuelleTabelle($azubi);
+		$dateiname = sprintf('%s - Notenschnitt aktuell.pdf', PdfExportService::azubiDateinameBasis($azubi, $this->userManager));
+		$this->renderUndSpeichere(
+			$azubi,
+			$tabelle['lehrjahr'],
+			$tabelle['gueltigAb'],
+			date('Y-m-d'),
+			$tabelle['faecher'],
+			$dateiname,
+		);
+	}
+
+	private function renderUndSpeichere(Azubi $azubi, int $lehrjahr, string $von, string $bis, array $faecher, string $dateiname): void {
+		$appPath = Server::get(IAppManager::class)->getAppPath(Application::APP_ID);
 		$html = $this->renderTemplate($appPath . '/templates/pdf/notenschnitt.php', [
-			'azubiName' => $azubiName,
-			'lehrjahr' => $endendeZuweisung->getLehrjahr(),
-			'zeitraumVonFormatiert' => (new DateTimeImmutable($endendeZuweisung->getGueltigAb()))->format('d.m.Y'),
-			'zeitraumBisFormatiert' => (new DateTimeImmutable($bisInklusiv))->format('d.m.Y'),
+			'azubiName' => PdfExportService::azubiDateinameBasis($azubi, $this->userManager),
+			'lehrjahr' => $lehrjahr,
+			'zeitraumVonFormatiert' => (new DateTimeImmutable($von))->format('d.m.Y'),
+			'zeitraumBisFormatiert' => (new DateTimeImmutable($bis))->format('d.m.Y'),
 			'faecher' => $faecher,
 		]);
 
@@ -148,7 +180,6 @@ class NotenService {
 		$dompdf->setPaper('A4');
 		$dompdf->render();
 
-		$dateiname = sprintf('%s - Notenschnitt Lehrjahr %d.pdf', $azubiName, $endendeZuweisung->getLehrjahr());
 		$this->fileStorageService->speicherePdf($azubi, $dateiname, $dompdf->output());
 	}
 

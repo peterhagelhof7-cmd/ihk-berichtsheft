@@ -10,6 +10,7 @@ use OCA\Berichtsheft\Db\Export;
 use OCA\Berichtsheft\Db\ExportMapper;
 use OCA\Berichtsheft\Db\Woche;
 use OCA\Berichtsheft\Db\WocheMapper;
+use OCA\Berichtsheft\Service\NotenService;
 use OCA\Berichtsheft\Service\PdfExportService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Utility\ITimeFactory;
@@ -19,7 +20,8 @@ use OCP\Notification\IManager as INotificationManager;
 /**
  * Prueft je offenem bh_export, ob ALLE 4 zugehoerigen Wochen akzeptiert
  * sind (Plan Abschnitt 3, Job 4 - "darf erst laufen, wenn alle zu
- * verarbeitenden Wochen akzeptiert sind"). Wenn ja: PDF rendern, Status
+ * verarbeitenden Wochen akzeptiert sind"). Wenn ja: PDF rendern, zusaetzlich
+ * die aktuelle Notenschnitt-Uebersicht auffrischen (NotenService), Status
  * exportiert, Azubi+Ausbilder benachrichtigen. Wenn nein: nichts tun -
  * die Erinnerung "bitte pruefen" laeuft bereits ueber
  * AusbilderDigestJob bzw. sofort bei Einreichung.
@@ -31,6 +33,7 @@ class ExportGeneratorJob extends TimedJob {
 		private WocheMapper $wocheMapper,
 		private AzubiMapper $azubiMapper,
 		private PdfExportService $pdfExportService,
+		private NotenService $notenService,
 		private INotificationManager $notificationManager,
 	) {
 		parent::__construct($time);
@@ -56,6 +59,13 @@ class ExportGeneratorJob extends TimedJob {
 			}
 
 			$this->pdfExportService->erzeugeExport($azubi, $export, $wochen);
+
+			try {
+				// Best-effort: manche Azubis haben (noch) kein Lehrjahr
+				// zugewiesen, das darf den eigentlichen Export nicht blockieren.
+				$this->notenService->aktualisiereAktuelleUebersicht($azubi);
+			} catch (DoesNotExistException) {
+			}
 
 			$export->setStatus(Export::STATUS_EXPORTIERT);
 			$export->setGeneratedAt($this->time->getTime());
