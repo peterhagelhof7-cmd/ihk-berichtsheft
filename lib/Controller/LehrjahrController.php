@@ -8,6 +8,7 @@ use OCA\Berichtsheft\Db\AzubiMapper;
 use OCA\Berichtsheft\Db\LehrjahrZuweisung;
 use OCA\Berichtsheft\Db\LehrjahrZuweisungMapper;
 use OCA\Berichtsheft\Service\AusbilderGruppenService;
+use OCA\Berichtsheft\Service\NotenService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http\Attribute\FrontpageRoute;
@@ -29,6 +30,7 @@ class LehrjahrController extends Controller {
 		private LehrjahrZuweisungMapper $lehrjahrZuweisungMapper,
 		private AzubiMapper $azubiMapper,
 		private AusbilderGruppenService $ausbilderGruppenService,
+		private NotenService $notenService,
 		private IUserManager $userManager,
 		private IUserSession $userSession,
 	) {
@@ -59,7 +61,14 @@ class LehrjahrController extends Controller {
 		return new JSONResponse(array_map([$this, 'serialize'], $alle));
 	}
 
-	/** Legt eine neue Lehrjahr-Zuweisung ab einem Stichtag an. */
+	/**
+	 * Legt eine neue Lehrjahr-Zuweisung ab einem Stichtag an. War zu diesem
+	 * Stichtag bereits eine fruehere Zuweisung gueltig, wird deren
+	 * Notenschnitt-Endstand zuerst als PDF archiviert (NotenService,
+	 * "Lehrjahr Ende"-Anforderung der Notenverwaltung) - eine neue
+	 * Notentabelle ergibt sich danach von selbst, da die Notenstand-Abfrage
+	 * immer nur ab dem gueltig_ab der jeweils aktuellen Zuweisung filtert.
+	 */
 	#[NoAdminRequired]
 	#[FrontpageRoute(verb: 'POST', url: '/api/lehrjahr/{azubiId}')]
 	public function create(int $azubiId, string $gueltigAb, int $lehrjahr): JSONResponse {
@@ -67,12 +76,18 @@ class LehrjahrController extends Controller {
 			return $fail;
 		}
 		try {
-			$this->azubiMapper->find($azubiId);
+			$azubi = $this->azubiMapper->find($azubiId);
 		} catch (DoesNotExistException) {
 			return new JSONResponse(['error' => 'Azubi nicht gefunden.'], 404);
 		}
 		if ($this->lehrjahrZuweisungMapper->existsForAzubiAndGueltigAb($azubiId, $gueltigAb)) {
 			return new JSONResponse(['error' => 'Fuer diesen Stichtag existiert bereits eine Zuweisung.'], 409);
+		}
+
+		try {
+			$endendeZuweisung = $this->lehrjahrZuweisungMapper->findAktuellFuerAzubi($azubiId, $gueltigAb);
+		} catch (DoesNotExistException) {
+			$endendeZuweisung = null;
 		}
 
 		$zuweisung = new LehrjahrZuweisung();
@@ -82,6 +97,10 @@ class LehrjahrController extends Controller {
 		$zuweisung->setFestgelegtVonUserId($this->userSession->getUser()->getUID());
 		$zuweisung->setFestgelegtAm(time());
 		$zuweisung = $this->lehrjahrZuweisungMapper->insert($zuweisung);
+
+		if ($endendeZuweisung !== null) {
+			$this->notenService->archiviereLehrjahrende($azubi, $endendeZuweisung, $gueltigAb);
+		}
 
 		return new JSONResponse($this->serialize($zuweisung), 201);
 	}

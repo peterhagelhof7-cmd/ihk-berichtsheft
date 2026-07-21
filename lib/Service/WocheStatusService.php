@@ -8,6 +8,7 @@ use OCA\Berichtsheft\Db\Azubi;
 use OCA\Berichtsheft\Db\AzubiMapper;
 use OCA\Berichtsheft\Db\Eintrag;
 use OCA\Berichtsheft\Db\EintragMapper;
+use OCA\Berichtsheft\Db\FachEintragMapper;
 use OCA\Berichtsheft\Db\Woche;
 use OCP\IUserManager;
 
@@ -19,13 +20,16 @@ class WocheStatusService {
 	public function __construct(
 		private AzubiMapper $azubiMapper,
 		private EintragMapper $eintragMapper,
+		private FachEintragMapper $fachEintragMapper,
 		private IUserManager $userManager,
 	) {
 	}
 
 	/**
 	 * Kompakter Statustext fuer die Vorwoche je Azubi - fehlende Tage
-	 * werden benannt, damit der Digest sofort auf Luecken hinweist.
+	 * werden benannt, damit der Digest sofort auf Luecken hinweist. Wurde
+	 * in der Vorwoche mindestens eine Note uebermittelt (Notenverwaltung),
+	 * wird das ebenfalls im Statustext erwaehnt.
 	 * @return array<array{azubiName:string,wocheVon:string,status:string}>
 	 */
 	public function statusVorwocheAlleAzubis(string $heute): array {
@@ -47,6 +51,11 @@ class WocheStatusService {
 				? 'vollständig erfasst'
 				: sprintf('%d Werktag(e) ohne Eintrag', $fehlendeTage);
 
+			$notenAnzahl = $this->anzahlNotenIn($eintraege);
+			if ($notenAnzahl > 0) {
+				$status .= sprintf(', %d Note%s übermittelt', $notenAnzahl, $notenAnzahl === 1 ? '' : 'n');
+			}
+
 			$zeilen[] = [
 				'azubiName' => $name,
 				'wocheVon' => $vorwocheVon,
@@ -54,6 +63,22 @@ class WocheStatusService {
 			];
 		}
 		return $zeilen;
+	}
+
+	/** @param Eintrag[] $eintraege */
+	private function anzahlNotenIn(array $eintraege): int {
+		$anzahl = 0;
+		foreach ($eintraege as $eintrag) {
+			if ($eintrag->getTagTyp() !== Eintrag::TAG_TYP_BERUFSSCHULE) {
+				continue;
+			}
+			foreach ($this->fachEintragMapper->findByEintragId($eintrag->getId()) as $fachEintrag) {
+				if ($fachEintrag->getNoteArt() !== null) {
+					$anzahl++;
+				}
+			}
+		}
+		return $anzahl;
 	}
 
 	public function azubiAnzeigename(Azubi $azubi): string {

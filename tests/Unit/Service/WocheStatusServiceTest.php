@@ -8,6 +8,8 @@ use OCA\Berichtsheft\Db\Azubi;
 use OCA\Berichtsheft\Db\AzubiMapper;
 use OCA\Berichtsheft\Db\Eintrag;
 use OCA\Berichtsheft\Db\EintragMapper;
+use OCA\Berichtsheft\Db\FachEintrag;
+use OCA\Berichtsheft\Db\FachEintragMapper;
 use OCA\Berichtsheft\Service\WocheStatusService;
 use OCP\IUser;
 use OCP\IUserManager;
@@ -17,14 +19,16 @@ use PHPUnit\Framework\TestCase;
 final class WocheStatusServiceTest extends TestCase {
 	private AzubiMapper&MockObject $azubiMapper;
 	private EintragMapper&MockObject $eintragMapper;
+	private FachEintragMapper&MockObject $fachEintragMapper;
 	private IUserManager&MockObject $userManager;
 	private WocheStatusService $service;
 
 	protected function setUp(): void {
 		$this->azubiMapper = $this->createMock(AzubiMapper::class);
 		$this->eintragMapper = $this->createMock(EintragMapper::class);
+		$this->fachEintragMapper = $this->createMock(FachEintragMapper::class);
 		$this->userManager = $this->createMock(IUserManager::class);
-		$this->service = new WocheStatusService($this->azubiMapper, $this->eintragMapper, $this->userManager);
+		$this->service = new WocheStatusService($this->azubiMapper, $this->eintragMapper, $this->fachEintragMapper, $this->userManager);
 	}
 
 	private function azubi(?string $vorname, ?string $nachname): Azubi {
@@ -79,5 +83,37 @@ final class WocheStatusServiceTest extends TestCase {
 		$eintrag->setDatum($datum);
 		$eintrag->setTagTyp(Eintrag::TAG_TYP_BETRIEB);
 		return $eintrag;
+	}
+
+	public function testStatusVorwocheErwaehntUebermittelteNoten(): void {
+		$this->azubiMapper->method('findActiveOn')->willReturn([$this->azubi('Ein', 'Simbel')]);
+
+		$berufsschulTag = new Eintrag();
+		$berufsschulTag->setId(99);
+		$berufsschulTag->setAzubiId(1);
+		$berufsschulTag->setDatum('2026-07-08');
+		$berufsschulTag->setTagTyp(Eintrag::TAG_TYP_BERUFSSCHULE);
+
+		$this->eintragMapper->method('findByAzubiAndDateRange')->willReturn(
+			array_merge(
+				array_map([$this, 'eintrag'], ['2026-07-06', '2026-07-07', '2026-07-09', '2026-07-10']),
+				[$berufsschulTag],
+			),
+		);
+
+		$mitNote = new FachEintrag();
+		$mitNote->setFachId(1);
+		$mitNote->setStunden(2.0);
+		$mitNote->setNoteArt(FachEintrag::NOTE_ART_SCHRIFTLICH);
+		$mitNote->setNote(2);
+		$ohneNote = new FachEintrag();
+		$ohneNote->setFachId(2);
+		$ohneNote->setStunden(2.0);
+
+		$this->fachEintragMapper->method('findByEintragId')->with(99)->willReturn([$mitNote, $ohneNote]);
+
+		$zeilen = $this->service->statusVorwocheAlleAzubis('2026-07-13');
+
+		self::assertSame('vollständig erfasst, 1 Note übermittelt', $zeilen[0]['status']);
 	}
 }

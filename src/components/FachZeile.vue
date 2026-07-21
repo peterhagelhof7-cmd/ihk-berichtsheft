@@ -4,7 +4,7 @@ import NcTextField from '@nextcloud/vue/components/NcTextField'
 import NcButton from '@nextcloud/vue/components/NcButton'
 
 interface Fach { id: number, name: string }
-interface FachZeileWert { fachId: number | null, stunden: number | null, inhalt: string | null }
+interface FachZeileWert { fachId: number | null, stunden: number | null, inhalt: string | null, noteArt: string | null, note: number | null }
 
 const props = defineProps<{
 	modelValue: FachZeileWert
@@ -16,6 +16,14 @@ const emit = defineEmits<{
 	remove: []
 }>()
 
+const NOTENARTEN = [
+	{ id: '', label: 'Keine Note' },
+	{ id: 'schriftlich', label: 'Schriftlich' },
+	{ id: 'muendlich', label: 'Mündlich (zählt 50%)' },
+	{ id: 'stehgreif', label: 'Stehgreifaufgabe (zählt 50%)' },
+]
+const NOTENWERTE = [1, 2, 3, 4, 5, 6].map((n) => ({ id: n, label: String(n) }))
+
 function setzeFach(fachId: number | null) {
 	emit('update:modelValue', { ...props.modelValue, fachId })
 }
@@ -24,6 +32,16 @@ function setzeStunden(stunden: string) {
 }
 function setzeInhalt(inhalt: string) {
 	emit('update:modelValue', { ...props.modelValue, inhalt: inhalt === '' ? null : inhalt })
+}
+function setzeNoteArt(noteArt: string | null) {
+	emit('update:modelValue', {
+		...props.modelValue,
+		noteArt: noteArt ? noteArt : null,
+		note: noteArt ? props.modelValue.note : null,
+	})
+}
+function setzeNote(note: number | null) {
+	emit('update:modelValue', { ...props.modelValue, note })
 }
 </script>
 
@@ -52,6 +70,25 @@ function setzeInhalt(inhalt: string) {
 			:disabled="!bearbeitbar"
 			placeholder="Unterrichtsinhalt (optional)"
 			@update:model-value="setzeInhalt" />
+		<div class="fach-zeile__note">
+			<NcSelect
+				class="fach-zeile__note-art"
+				:model-value="NOTENARTEN.find(n => n.id === (modelValue.noteArt ?? '')) ?? NOTENARTEN[0]"
+				:disabled="!bearbeitbar"
+				:options="NOTENARTEN"
+				:clearable="false"
+				label="label"
+				@update:model-value="(n) => setzeNoteArt(n ? n.id : null)" />
+			<NcSelect
+				v-if="modelValue.noteArt"
+				class="fach-zeile__note-wert"
+				:model-value="NOTENWERTE.find(n => n.id === modelValue.note) ?? null"
+				:disabled="!bearbeitbar"
+				:options="NOTENWERTE"
+				label="label"
+				placeholder="Note"
+				@update:model-value="(n) => setzeNote(n ? n.id : null)" />
+		</div>
 	</div>
 </template>
 
@@ -75,5 +112,17 @@ function setzeInhalt(inhalt: string) {
 .fach-zeile__entfernen {
 	flex: 0 0 auto;
 	white-space: nowrap;
+}
+.fach-zeile__note {
+	display: flex;
+	gap: 8px;
+	margin-top: 4px;
+}
+.fach-zeile__note-art {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+.fach-zeile__note-wert {
+	flex: 0 0 100px;
 }
 </style>

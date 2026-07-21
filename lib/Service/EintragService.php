@@ -114,8 +114,8 @@ class EintragService {
 
 	/**
 	 * Speichert/ueberschreibt einen Tageseintrag.
-	 * @param array<array{fachId:int,stunden:float,inhalt?:?string}> $faecher nur bei tag_typ=berufsschule ausgewertet
-	 * @throws \DomainException wenn die Woche nicht bearbeitbar ist
+	 * @param array<array{fachId:int,stunden:float,inhalt?:?string,noteArt?:?string,note?:?int}> $faecher nur bei tag_typ=berufsschule ausgewertet
+	 * @throws \DomainException wenn die Woche nicht bearbeitbar ist oder eine Note ungueltig ist
 	 */
 	public function speichereEintrag(
 		Azubi $azubi,
@@ -144,10 +144,27 @@ class EintragService {
 			? $this->eintragMapper->insert($eintrag)
 			: $this->eintragMapper->update($eintrag);
 
+		if ($tagTyp === Eintrag::TAG_TYP_BERUFSSCHULE) {
+			// Vor dem Loeschen der bisherigen Zeilen validieren, damit ein
+			// ungueltiger Fach-Eintrag nicht zu einem Tag ohne (oder mit nur
+			// teilweise neu geschriebenen) Fach-Zeilen fuehrt.
+			foreach ($faecher as $fach) {
+				$noteArt = ($fach['noteArt'] ?? null) ?: null;
+				if ($noteArt !== null && !array_key_exists($noteArt, FachEintrag::NOTE_GEWICHT)) {
+					throw new \DomainException('Ungueltige Notenart.');
+				}
+				$note = $fach['note'] ?? null;
+				if ($noteArt !== null && ($note === null || $note < 1 || $note > 6)) {
+					throw new \DomainException('Note muss zwischen 1 und 6 liegen.');
+				}
+			}
+		}
+
 		$this->fachEintragMapper->deleteByEintragId($eintrag->getId());
 		if ($tagTyp === Eintrag::TAG_TYP_BERUFSSCHULE) {
 			$position = 0;
 			foreach ($faecher as $fach) {
+				$noteArt = ($fach['noteArt'] ?? null) ?: null;
 				$zeile = new FachEintrag();
 				$zeile->setEintragId($eintrag->getId());
 				$zeile->setPosition($position++);
@@ -155,6 +172,8 @@ class EintragService {
 				$zeile->setStunden((float)$fach['stunden']);
 				$inhalt = $fach['inhalt'] ?? null;
 				$zeile->setInhalt($inhalt !== null && $inhalt !== '' ? $inhalt : null);
+				$zeile->setNoteArt($noteArt);
+				$zeile->setNote($noteArt !== null ? (int)$fach['note'] : null);
 				$this->fachEintragMapper->insert($zeile);
 			}
 		}

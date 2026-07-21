@@ -7,7 +7,7 @@ import TagEintrag from '../components/TagEintrag.vue'
 import { api } from '../api.ts'
 
 interface Fach { id: number, name: string }
-interface FachEintragWert { fachId: number | null, stunden: number | null }
+interface FachEintragWert { fachId: number | null, stunden: number | null, inhalt: string | null, noteArt: string | null, note: number | null }
 interface EintragWert {
 	tagTyp: string
 	taetigkeit: string | null
@@ -26,11 +26,15 @@ interface WocheDaten {
 
 const TAGE_LABEL = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag']
 
-function montagVonHeute(): string {
+function heutigesDatum(): string {
 	const heute = new Date()
-	const tagVersatz = (heute.getDay() + 6) % 7 // Mo=0..So=6
-	heute.setDate(heute.getDate() - tagVersatz)
-	return heute.toISOString().slice(0, 10)
+	const jahr = heute.getFullYear()
+	const monat = String(heute.getMonth() + 1).padStart(2, '0')
+	const tag = String(heute.getDate()).padStart(2, '0')
+	return `${jahr}-${monat}-${tag}`
+}
+function montagVonHeute(): string {
+	return datumPlus(heutigesDatum(), -((new Date().getDay() + 6) % 7))
 }
 function datumPlus(basis: string, tage: number): string {
 	const d = new Date(basis)
@@ -104,11 +108,52 @@ async function wocheEinreichen() {
 	}
 }
 
-function vorherigeWoche() {
-	wocheVon.value = datumPlus(wocheVon.value, -7)
+/** ISO-8601-Kalenderwoche des uebergebenen Datums (yyyy-mm-dd). */
+function kwVon(datum: string): number {
+	const d = new Date(datum + 'T00:00:00Z')
+	const tagVersatz = (d.getUTCDay() + 6) % 7
+	d.setUTCDate(d.getUTCDate() - tagVersatz + 3)
+	const donnerstagJahr = d.getUTCFullYear()
+	const erstesDonnerstag = new Date(Date.UTC(donnerstagJahr, 0, 4))
+	const ersterVersatz = (erstesDonnerstag.getUTCDay() + 6) % 7
+	erstesDonnerstag.setUTCDate(erstesDonnerstag.getUTCDate() - ersterVersatz + 3)
+	return 1 + Math.round((d.getTime() - erstesDonnerstag.getTime()) / (7 * 24 * 60 * 60 * 1000))
 }
-function naechsteWoche() {
-	wocheVon.value = datumPlus(wocheVon.value, 7)
+/** ISO-Wochenjahr des uebergebenen Datums - kann an Jahresgrenzen vom Kalenderjahr abweichen. */
+function isoJahrVon(datum: string): number {
+	const d = new Date(datum + 'T00:00:00Z')
+	const tagVersatz = (d.getUTCDay() + 6) % 7
+	d.setUTCDate(d.getUTCDate() - tagVersatz + 3)
+	return d.getUTCFullYear()
+}
+/** Montag der KW $kw im ISO-Wochenjahr $isoJahr. */
+function montagVonKW(isoJahr: number, kw: number): string {
+	const erstesDonnerstag = new Date(Date.UTC(isoJahr, 0, 4))
+	const ersterVersatz = (erstesDonnerstag.getUTCDay() + 6) % 7
+	const montagKw1 = new Date(erstesDonnerstag)
+	montagKw1.setUTCDate(erstesDonnerstag.getUTCDate() - ersterVersatz)
+	const montag = new Date(montagKw1)
+	montag.setUTCDate(montagKw1.getUTCDate() + (kw - 1) * 7)
+	return montag.toISOString().slice(0, 10)
+}
+/** Anzahl KWs im ISO-Wochenjahr (52 oder 53) - der 28. Dezember liegt immer in der letzten KW. */
+function anzahlKWImJahr(isoJahr: number): number {
+	return kwVon(`${isoJahr}-12-28`)
+}
+
+const aktuellesIsoJahr = isoJahrVon(heutigesDatum())
+const aktuelleKW = kwVon(heutigesDatum())
+
+const kwListe = computed(() => {
+	const anzahl = anzahlKWImJahr(aktuellesIsoJahr)
+	return Array.from({ length: anzahl }, (_, i) => {
+		const kw = i + 1
+		return { kw, montag: montagVonKW(aktuellesIsoJahr, kw) }
+	})
+})
+
+function kwWaehlen(montag: string) {
+	wocheVon.value = montag
 }
 
 watch(wocheVon, lade)
@@ -117,13 +162,23 @@ onMounted(lade)
 
 <template>
 	<div class="wochenansicht">
+		<div class="kw-raster">
+			<button
+				v-for="eintrag in kwListe"
+				:key="eintrag.kw"
+				type="button"
+				class="kw-kaestchen"
+				:class="{ 'kw-aktuell': eintrag.kw === aktuelleKW, 'kw-ausgewaehlt': eintrag.montag === wocheVon }"
+				@click="kwWaehlen(eintrag.montag)">
+				KW {{ eintrag.kw }}
+			</button>
+		</div>
+
 		<div class="kopf">
-			<NcButton @click="vorherigeWoche">← Vorherige Woche</NcButton>
 			<h2>
 				Woche vom {{ wocheVon }} bis {{ datumPlus(wocheVon, 6) }}
 				<span v-if="woche"> — Nachweis Nr. {{ woche.nachweisNr }}, Ausbildungsjahr {{ ausbildungsjahr }}</span>
 			</h2>
-			<NcButton @click="naechsteWoche">Nächste Woche →</NcButton>
 		</div>
 
 		<NcNoteCard v-if="fehler" type="error">{{ fehler }}</NcNoteCard>
@@ -158,10 +213,34 @@ onMounted(lade)
 	margin: 16px auto;
 }
 .kopf {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
 	margin-bottom: 16px;
+}
+.kw-raster {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+	gap: 6px;
+	margin-bottom: 24px;
+}
+.kw-kaestchen {
+	padding: 8px 4px;
+	border: 1px solid var(--color-border);
+	border-radius: var(--border-radius);
+	background: var(--color-main-background);
+	color: var(--color-main-text);
+	cursor: pointer;
+	text-align: center;
+	font-size: 0.9em;
+}
+.kw-kaestchen:hover {
+	background: var(--color-background-hover);
+}
+.kw-kaestchen.kw-aktuell {
+	font-weight: bold;
+}
+.kw-kaestchen.kw-ausgewaehlt {
+	background: var(--color-primary-element);
+	color: var(--color-primary-element-text);
+	border-color: var(--color-primary-element);
 }
 .wochenend-schalter {
 	display: flex;

@@ -8,15 +8,16 @@ import NcAppNavigationItem from '@nextcloud/vue/components/NcAppNavigationItem'
 import Wochenansicht from './views/Wochenansicht.vue'
 import Pruefung from './views/Pruefung.vue'
 import Verwaltung from './views/Verwaltung.vue'
+import Notenstand from './views/Notenstand.vue'
 
 const istAusbilder = loadState<boolean>('berichtsheft', 'istAusbilder', false)
 const istAzubi = loadState<boolean>('berichtsheft', 'istAzubi', false)
 
 // Ist jemand beides (Ausbilder, der selbst auch Azubi ist), startet die
-// Ansicht bei der eigenen Wochenansicht - die Pruefung fremder Wochen und
-// die Verwaltung sind bewusst separate Menuepunkte, keine Vermischung in
-// einer Ansicht.
-const aktuelleAnsicht = ref<'wochenansicht' | 'pruefung' | 'verwaltung'>(istAzubi ? 'wochenansicht' : 'pruefung')
+// Ansicht bei der eigenen Wochenansicht - die Pruefung fremder Wochen, die
+// Verwaltung und der Notenstand sind bewusst separate Menuepunkte, keine
+// Vermischung in einer Ansicht.
+const aktuelleAnsicht = ref<'wochenansicht' | 'pruefung' | 'verwaltung' | 'notenstand'>(istAzubi ? 'wochenansicht' : 'pruefung')
 </script>
 
 <template>
@@ -35,11 +36,16 @@ const aktuelleAnsicht = ref<'wochenansicht' | 'pruefung' | 'verwaltung'>(istAzub
 				name="Verwaltung"
 				:active="aktuelleAnsicht === 'verwaltung'"
 				@click="aktuelleAnsicht = 'verwaltung'" />
+			<NcAppNavigationItem
+				name="Notenstand"
+				:active="aktuelleAnsicht === 'notenstand'"
+				@click="aktuelleAnsicht = 'notenstand'" />
 		</NcAppNavigation>
 		<NcAppContent>
 			<Wochenansicht v-if="istAzubi && aktuelleAnsicht === 'wochenansicht'" />
 			<Pruefung v-else-if="istAusbilder && aktuelleAnsicht === 'pruefung'" />
 			<Verwaltung v-else-if="istAusbilder && aktuelleAnsicht === 'verwaltung'" />
+			<Notenstand v-else-if="istAusbilder && aktuelleAnsicht === 'notenstand'" />
 			<p v-else class="kein-zugriff">
 				Dieser Nextcloud-Account ist weder als Azubi noch als Ausbilder im Berichtsheft aktiviert.
 			</p>

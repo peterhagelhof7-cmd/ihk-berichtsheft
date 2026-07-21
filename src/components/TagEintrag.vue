@@ -7,7 +7,7 @@ import NcButton from '@nextcloud/vue/components/NcButton'
 import FachZeile from './FachZeile.vue'
 
 interface Fach { id: number, name: string }
-interface FachEintragWert { fachId: number | null, stunden: number | null, inhalt: string | null }
+interface FachEintragWert { fachId: number | null, stunden: number | null, inhalt: string | null, noteArt: string | null, note: number | null }
 interface EintragWert {
 	tagTyp: string
 	taetigkeit: string | null
@@ -44,7 +44,7 @@ const brauchtFaecher = computed(() => lokal.value.tagTyp === 'berufsschule')
 const nurLabel = computed(() => ['feiertag', 'urlaub', 'krankheit'].includes(lokal.value.tagTyp))
 
 function fachHinzufuegen() {
-	lokal.value.faecher.push({ fachId: null, stunden: null, inhalt: null })
+	lokal.value.faecher.push({ fachId: null, stunden: null, inhalt: null, noteArt: null, note: null })
 }
 function fachAktualisieren(index: number, wert: FachEintragWert) {
 	lokal.value.faecher[index] = wert

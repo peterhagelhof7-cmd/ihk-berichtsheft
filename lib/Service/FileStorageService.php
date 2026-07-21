@@ -57,6 +57,22 @@ class FileStorageService {
 	 * an. Wird bei der Azubi-Aktivierung aufgerufen, nicht pro Export.
 	 */
 	public function ensureBerichtsheftOrdnerUndGruppenShare(Azubi $azubi): Folder {
+		// Wird waehrend der Azubi-Aktivierung im Kontext des ausfuehrenden
+		// Ausbilders aufgerufen, nicht des Azubis selbst - ohne das hier
+		// laeuft der Azubi-Nutzer u.U. zum allerersten Mal ueberhaupt durch
+		// die Dateisystem-Initialisierung (neu angelegte Azubis haben sich
+		// vor der Aktivierung durch den Ausbilder erfahrungsgemaess noch nie
+		// eingeloggt, das ist hier der Normalfall, kein Sonderfall). Ohne
+		// initMountPoints() bleibt getUserFolder() fuer einen Nutzer ohne
+		// vorherige eigene Session inkonsistent: oc_filecache-Eintraege
+		// werden angelegt, die physischen Dateien im Datenverzeichnis aber
+		// nicht - siehe docs/entscheidungen.md. Etabliertes Nextcloud-Muster
+		// fuer "Dateizugriff fuer einen anderen als den eingeloggten Nutzer"
+		// (siehe lib/private/Files/View.php, apps/files_versions/lib/
+		// Storage.php, apps/files_trashbin/lib/Trashbin.php - alle rufen das
+		// vor Dateioperationen fuer einen fremden Nutzer identisch auf).
+		\OC\Files\Filesystem::initMountPoints($azubi->getUserId());
+
 		$userFolder = $this->rootFolder->getUserFolder($azubi->getUserId());
 		$name = $this->ordnername($azubi);
 

@@ -76,7 +76,7 @@ class EintragController extends Controller {
 	}
 
 	/**
-	 * @param array<array{fachId:int,stunden:float}>|null $faecher
+	 * @param array<array{fachId:int,stunden:float,inhalt?:?string,noteArt?:?string,note?:?int}>|null $faecher
 	 */
 	#[NoAdminRequired]
 	#[FrontpageRoute(verb: 'PUT', url: '/api/eintrag/{datum}')]
@@ -136,7 +136,13 @@ class EintragController extends Controller {
 			'stunden' => $eintrag->getStunden(),
 			'faecher' => $eintrag->getTagTyp() === Eintrag::TAG_TYP_BERUFSSCHULE
 				? array_map(
-					static fn ($fe) => ['fachId' => $fe->getFachId(), 'stunden' => $fe->getStunden(), 'inhalt' => $fe->getInhalt()],
+					static fn ($fe) => [
+						'fachId' => $fe->getFachId(),
+						'stunden' => $fe->getStunden(),
+						'inhalt' => $fe->getInhalt(),
+						'noteArt' => $fe->getNoteArt(),
+						'note' => $fe->getNote(),
+					],
 					$this->fachEintragMapper->findByEintragId($eintrag->getId()),
 				)
 				: [],

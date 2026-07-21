@@ -45,4 +45,20 @@ class EintragMapper extends QBMapper {
 			->orderBy('datum', 'ASC');
 		return $this->findEntities($qb);
 	}
+
+	/**
+	 * Alle Tageseintraege ab (inkl.) einem Datum, ohne obere Grenze -
+	 * Grundlage der Notentabelle des aktuellen (noch laufenden) Lehrjahrs,
+	 * das per Definition kein Enddatum hat (NotenService).
+	 * @return Eintrag[]
+	 */
+	public function findByAzubiVonDatum(int $azubiId, string $von): array {
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')
+			->from($this->getTableName())
+			->where($qb->expr()->eq('azubi_id', $qb->createNamedParameter($azubiId, IQueryBuilder::PARAM_INT)))
+			->andWhere($qb->expr()->gte('datum', $qb->createNamedParameter($von, IQueryBuilder::PARAM_STR)))
+			->orderBy('datum', 'ASC');
+		return $this->findEntities($qb);
+	}
 }
