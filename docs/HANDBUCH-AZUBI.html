@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Berichtsheft — Handbuch für Auszubildende</title>
+<style>
+  :root {
+    --navy: #1c3d5a;
+    --accent: #2f7d95;
+    --soft: #eef3f6;
+    --line: #cfd8dd;
+    --text: #22303a;
+    --muted: #5c6b74;
+    --warn-bg: #fdf3e7;
+    --warn-line: #e0a458;
+    --tip-bg: #eaf4ef;
+    --tip-line: #4a9e78;
+  }
+  @page { size: A4; margin: 20mm 18mm 18mm 18mm; }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body {
+    font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    color: var(--text); font-size: 10.5pt; line-height: 1.5; margin: 0;
+  }
+  h1, h2, h3 { color: var(--navy); line-height: 1.2; }
+  h1 { font-size: 22pt; margin: 0 0 2mm; }
+  h2 {
+    font-size: 14pt; margin: 9mm 0 3mm; padding-bottom: 1.5mm;
+    border-bottom: 2px solid var(--accent); break-after: avoid;
+  }
+  h3 { font-size: 11.5pt; margin: 5mm 0 1.5mm; break-after: avoid; }
+  p { margin: 0 0 2.5mm; }
+  ul, ol { margin: 0 0 3mm; padding-left: 5.5mm; }
+  li { margin-bottom: 1.2mm; }
+  code {
+    font-family: "Consolas", "Courier New", monospace;
+    background: var(--soft); border: 1px solid var(--line);
+    border-radius: 3px; padding: 0.3mm 1.2mm; font-size: 9.2pt;
+  }
+  strong { color: var(--navy); }
+
+  .titlepage {
+    padding: 4mm 0 6mm; border-bottom: 3px solid var(--navy); margin-bottom: 7mm;
+  }
+  .kicker {
+    text-transform: uppercase; letter-spacing: 0.18em; font-size: 9pt;
+    color: var(--accent); font-weight: 700; margin-bottom: 2mm;
+  }
+  .subtitle { color: var(--muted); font-size: 12pt; margin-top: 1mm; }
+  .meta {
+    margin-top: 5mm; font-size: 9pt; color: var(--muted);
+    display: flex; gap: 8mm; flex-wrap: wrap;
+  }
+  .meta b { color: var(--navy); }
+
+  .toc {
+    background: var(--soft); border: 1px solid var(--line); border-radius: 4px;
+    padding: 4mm 6mm; margin-bottom: 6mm;
+  }
+  .toc h2 { border: none; margin: 0 0 2mm; font-size: 12pt; }
+  .toc ol { columns: 2; column-gap: 10mm; margin: 0; padding-left: 5mm; }
+  .toc li { break-inside: avoid; }
+
+  table { width: 100%; border-collapse: collapse; margin: 2mm 0 4mm; font-size: 9.6pt; }
+  th, td { border: 1px solid var(--line); padding: 1.8mm 2.5mm; text-align: left; vertical-align: top; }
+  th { background: var(--navy); color: #fff; font-weight: 600; }
+  tbody tr:nth-child(even) { background: var(--soft); }
+
+  .callout {
+    border-left: 4px solid var(--accent); background: var(--soft);
+    padding: 2.5mm 4mm; margin: 3mm 0; border-radius: 0 4px 4px 0; break-inside: avoid;
+  }
+  .callout.tip { border-left-color: var(--tip-line); background: var(--tip-bg); }
+  .callout.warn { border-left-color: var(--warn-line); background: var(--warn-bg); }
+  .callout .label {
+    font-weight: 700; color: var(--navy); display: block; margin-bottom: 0.8mm;
+    font-size: 9.5pt; text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .callout.tip .label { color: var(--tip-line); }
+  .callout.warn .label { color: #b06a15; }
+  .callout p:last-child { margin-bottom: 0; }
+
+  .steps { counter-reset: step; list-style: none; padding-left: 0; }
+  .steps > li {
+    counter-increment: step; position: relative; padding-left: 9mm; margin-bottom: 2.5mm;
+  }
+  .steps > li::before {
+    content: counter(step); position: absolute; left: 0; top: -0.3mm;
+    width: 6mm; height: 6mm; background: var(--accent); color: #fff;
+    border-radius: 50%; font-size: 8.5pt; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  footer {
+    margin-top: 8mm; padding-top: 3mm; border-top: 1px solid var(--line);
+    font-size: 8.5pt; color: var(--muted);
+  }
+</style>
+</head>
+<body>
+
+<div class="titlepage">
+  <div class="kicker">Digitales IHK-Berichtsheft · Nextcloud-App</div>
+  <h1>Handbuch für Auszubildende</h1>
+  <div class="subtitle">Wochennachweise ausfüllen, einreichen und dein PDF erhalten</div>
+  <div class="meta">
+    <span><b>App-Version:</b> 0.10.2</span>
+    <span><b>Stand:</b> Juli 2026</span>
+    <span><b>Zielgruppe:</b> Auszubildende in IT-Berufen</span>
+  </div>
+</div>
+
+<div class="toc">
+  <h2>Inhalt</h2>
+  <ol>
+    <li>Worum es geht</li>
+    <li>Erste Schritte: deine Angaben</li>
+    <li>Die Wochenansicht</li>
+    <li>Einen Tag ausfüllen</li>
+    <li>Berufsschultage &amp; Noten</li>
+    <li>Woche einreichen</li>
+    <li>Rückmeldung deines Ausbilders</li>
+    <li>Dein Berichtsheft-PDF</li>
+    <li>Benachrichtigungen &amp; Tipps</li>
+  </ol>
+</div>
+
+<section>
+  <h2>1 · Worum es geht</h2>
+  <p>Mit dem <strong>Berichtsheft</strong> führst du deinen
+  Ausbildungsnachweis digital in Nextcloud — statt auf Papier oder in einer
+  PDF-Vorlage. Du trägst jede Woche deine Tätigkeiten ein und
+  <strong>reichst die Woche ein</strong>. Dein Ausbilder prüft sie und
+  <strong>akzeptiert</strong> sie oder gibt sie <strong>mit einem Kommentar
+  zurück</strong>. Nach vier akzeptierten Wochen entsteht automatisch dein
+  fertiges, IHK-konformes PDF.</p>
+</section>
+
+<section>
+  <h2>2 · Erste Schritte: deine Angaben</h2>
+  <p>Einmalig, bevor es losgeht — deine Angaben erscheinen später auf dem
+  <strong>Deckblatt</strong> deines Berichtshefts:</p>
+  <ol class="steps">
+    <li>Oben rechts auf deinen <strong>Avatar</strong> klicken → <strong>Einstellungen</strong>.</li>
+    <li>Links unter „Persönlich" den Punkt <strong>Berichtsheft</strong> wählen.</li>
+    <li><strong>Vor- und Nachnamen</strong> eintragen — bitte auf korrekte Schreibweise achten, sie stehen so auf dem Deckblatt.</li>
+    <li>Optional: bevorzugten <strong>Wochentag und Uhrzeit</strong> für die wöchentliche Erinnerung einstellen.</li>
+  </ol>
+  <div class="callout tip">
+    <span class="label">Tipp</span>
+    <p>Nach dem Speichern die Seite einmal neu laden und prüfen, ob dein Name
+    korrekt übernommen wurde.</p>
+  </div>
+</section>
+
+<section>
+  <h2>3 · Die Wochenansicht</h2>
+  <p>Die Hauptansicht öffnest du über das <strong>Berichtsheft-Symbol</strong>
+  in der oberen Leiste. Oben siehst du ein <strong>Raster aller Kalenderwochen</strong>
+  des Jahres — die aktuelle Woche ist hervorgehoben. Ein Klick auf eine
+  KW-Kachel öffnet die betreffende Woche.</p>
+  <p>Über der Woche steht der Zeitraum, die <strong>Nachweis-Nummer</strong> und
+  dein aktuelles <strong>Ausbildungsjahr</strong>. Standardmäßig siehst du
+  Montag bis Freitag; mit den Schaltern <strong>„Samstag zuschalten"</strong>
+  bzw. „Sonntag zuschalten" blendest du das Wochenende ein, falls für dich
+  relevant.</p>
+</section>
+
+<section>
+  <h2>4 · Einen Tag ausfüllen</h2>
+  <p>Für jeden Tag wählst du zunächst die <strong>Tagesart</strong>:</p>
+  <table>
+    <thead><tr><th>Tagesart</th><th>Was du einträgst</th></tr></thead>
+    <tbody>
+      <tr><td>Betriebstag</td><td>Deine <strong>ausgeführten Tätigkeiten</strong> als Text und die Stunden; optional Fächer/Bereiche.</td></tr>
+      <tr><td>Berufsschultag</td><td>Je Unterrichtsfach eine Zeile: Fach, Stunden, optional Inhalt und Note (siehe Abschnitt 5).</td></tr>
+      <tr><td>Feiertag / Urlaub / Krankheit</td><td>Nur die Tagesart markieren — kein Tätigkeitstext nötig.</td></tr>
+    </tbody>
+  </table>
+  <div class="callout tip">
+    <span class="label">Tipp</span>
+    <p>Deine Eingaben werden je Tag gespeichert. Verlässt du die Woche und
+    öffnest sie erneut, sind sie noch da. Am besten trägst du täglich ein — das
+    ist schneller als eine ganze Woche auf einmal.</p>
+  </div>
+</section>
+
+<section>
+  <h2>5 · Berufsschultage &amp; Noten</h2>
+  <p>An einem Berufsschultag legst du je Fach eine <strong>Fach-Zeile</strong>
+  an (mit „Fach hinzufügen" mehrere). Pro Zeile wählst du das Fach, trägst die
+  Stunden ein und optional den Unterrichtsinhalt. Zusätzlich kannst du eine
+  <strong>Note</strong> erfassen:</p>
+  <table>
+    <thead><tr><th>Notenart</th><th>Gewichtung</th></tr></thead>
+    <tbody>
+      <tr><td>Keine Note</td><td>—</td></tr>
+      <tr><td>Schriftlich</td><td>volle Gewichtung</td></tr>
+      <tr><td>Mündlich</td><td>zählt 50&nbsp;%</td></tr>
+      <tr><td>Stegreifaufgabe</td><td>zählt 50&nbsp;%</td></tr>
+    </tbody>
+  </table>
+  <p>Wählst du eine Notenart, erscheint ein Feld für die Note (1–6). Deine
+  Ausbilder sehen die Noten im Bereich „Notenstand" samt gewichtetem
+  Durchschnitt.</p>
+</section>
+
+<section>
+  <h2>6 · Woche einreichen</h2>
+  <p>Ist die Woche vollständig, klickst du unten auf
+  <strong>„Woche einreichen"</strong>. Der Status wechselt auf
+  <strong>Eingereicht</strong>, und der Berichtsheft-Verantwortliche wird
+  benachrichtigt.</p>
+  <div class="callout">
+    <span class="label">Was die Status bedeuten</span>
+    <p><strong>Offen</strong> — du bearbeitest sie noch ·
+    <strong>Eingereicht</strong> — beim Ausbilder zur Prüfung ·
+    <strong>Akzeptiert</strong> — abgenommen ·
+    <strong>Zurückgewiesen</strong> — kommt mit Kommentar zurück, bitte
+    korrigieren und erneut einreichen.</p>
+  </div>
+</section>
+
+<section>
+  <h2>7 · Rückmeldung deines Ausbilders</h2>
+  <p>Nach der Prüfung passiert eines von zwei Dingen:</p>
+  <ul>
+    <li><strong>Akzeptiert:</strong> Du bekommst eine Benachrichtigung, der Status wird „Akzeptiert". Fertig.</li>
+    <li><strong>Zurückgewiesen:</strong> Du erhältst den Kommentar deines Ausbilders (in Nextcloud und per E-Mail). Öffne die Woche, arbeite den Hinweis ein und reiche sie <strong>erneut</strong> ein.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>8 · Dein Berichtsheft-PDF</h2>
+  <p>Sobald <strong>vier Wochen am Stück akzeptiert</strong> wurden, erscheint
+  automatisch ein mehrseitiges PDF in deinem Dateibereich — im Ordner
+  <code>Berichtsheft&nbsp;-&nbsp;&lt;Nachname&gt;,&nbsp;&lt;Vorname&gt;</code>.
+  Das kann ein paar Minuten dauern.</p>
+  <p>Dein <strong>Deckblatt</strong> liegt bereits ab deiner Aktivierung als
+  eigene Datei in diesem Ordner. Prüfe, dass Name, Ausbildungsberuf und Betrieb
+  darauf korrekt stehen — falls nicht, sag deinem Ausbilder Bescheid.</p>
+  <div class="callout tip">
+    <span class="label">Tipp</span>
+    <p>Fehlt das PDF nach 15–20&nbsp;Minuten, obwohl vier Wochen akzeptiert sind,
+    gib deinem Ausbilder Bescheid — meist ist es nur der Hintergrund-Zeitplan
+    des Servers.</p>
+  </div>
+</section>
+
+<section>
+  <h2>9 · Benachrichtigungen &amp; Tipps</h2>
+  <ul>
+    <li>Über die <strong>Glocke</strong> oben rechts in Nextcloud (und per E-Mail) informiert dich die App über akzeptierte und zurückgewiesene Wochen.</li>
+    <li>Eine <strong>wöchentliche Erinnerung</strong> meldet sich, wenn du deine Woche noch nicht eingereicht hast (Termin einstellbar, Abschnitt 2).</li>
+    <li>Trage <strong>zeitnah</strong> ein — so vergisst du nichts und die Woche ist am Freitag schnell fertig.</li>
+    <li>Zurückgewiesene Wochen sind kein Problem: einfach korrigieren und neu einreichen.</li>
+  </ul>
+</section>
+
+<footer>
+  Berichtsheft — Digitales IHK-Berichtsheft für Auszubildende in IT-Berufen ·
+  Handbuch für Auszubildende · App-Version 0.10.2
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Berichtsheft — Überblick auf einer Seite</title>
+<style>
+  :root {
+    --navy: #1c3d5a;
+    --accent: #2f7d95;
+    --soft: #eef3f6;
+    --line: #cfd8dd;
+    --text: #22303a;
+    --muted: #5c6b74;
+    --tip: #4a9e78;
+  }
+  @page { size: A4; margin: 12mm 12mm 10mm 12mm; }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body {
+    font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    color: var(--text); font-size: 9.2pt; line-height: 1.42; margin: 0;
+  }
+  h1 { color: var(--navy); font-size: 20pt; margin: 0; line-height: 1.05; }
+  h2 {
+    color: var(--navy); font-size: 10.5pt; margin: 0 0 1.5mm;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    border-bottom: 1.5px solid var(--accent); padding-bottom: 1mm;
+  }
+  p { margin: 0 0 2mm; }
+  strong { color: var(--navy); }
+
+  .head {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    border-bottom: 3px solid var(--navy); padding-bottom: 3mm; margin-bottom: 4mm;
+  }
+  .head .kicker {
+    text-transform: uppercase; letter-spacing: 0.16em; font-size: 8pt;
+    color: var(--accent); font-weight: 700; margin-bottom: 1.5mm;
+  }
+  .head .tag { color: var(--muted); font-size: 9.5pt; margin-top: 1mm; }
+  .head .ver {
+    text-align: right; font-size: 8pt; color: var(--muted); white-space: nowrap;
+  }
+  .head .ver b { color: var(--navy); display: block; font-size: 9pt; }
+
+  .lead {
+    background: var(--soft); border-left: 4px solid var(--accent);
+    padding: 3mm 4mm; border-radius: 0 4px 4px 0; margin-bottom: 4mm; font-size: 9.6pt;
+  }
+
+  .cols { display: flex; gap: 6mm; }
+  .col { flex: 1; }
+
+  /* Workflow */
+  .flow { list-style: none; padding: 0; margin: 0 0 4mm; counter-reset: f; }
+  .flow li {
+    counter-increment: f; position: relative; padding-left: 8mm; margin-bottom: 2mm;
+  }
+  .flow li::before {
+    content: counter(f); position: absolute; left: 0; top: 0;
+    width: 5.5mm; height: 5.5mm; background: var(--accent); color: #fff;
+    border-radius: 50%; font-size: 8pt; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .flow b { color: var(--navy); }
+
+  .roles { margin-bottom: 4mm; }
+  .role {
+    border: 1px solid var(--line); border-radius: 4px; padding: 2.5mm 3mm; margin-bottom: 2.5mm;
+  }
+  .role .rname { color: var(--navy); font-weight: 700; font-size: 9.5pt; }
+
+  .features { list-style: none; padding: 0; margin: 0; }
+  .features li { position: relative; padding-left: 5mm; margin-bottom: 1.6mm; }
+  .features li::before {
+    content: "▸"; position: absolute; left: 0; color: var(--accent); font-weight: 700;
+  }
+
+  .badges { display: flex; flex-wrap: wrap; gap: 2mm; margin-top: 2mm; }
+  .badge {
+    background: var(--navy); color: #fff; border-radius: 3px;
+    padding: 0.8mm 2.5mm; font-size: 7.8pt; letter-spacing: 0.02em;
+  }
+  .badge.alt { background: var(--tip); }
+
+  footer {
+    margin-top: 5mm; padding-top: 2.5mm; border-top: 1px solid var(--line);
+    font-size: 7.6pt; color: var(--muted); display: flex; justify-content: space-between;
+  }
+</style>
+</head>
+<body>
+
+<div class="head">
+  <div>
+    <div class="kicker">Nextcloud-App</div>
+    <h1>Berichtsheft</h1>
+    <div class="tag">Digitales IHK-Berichtsheft für Auszubildende in IT-Berufen (AO2020)</div>
+  </div>
+  <div class="ver">
+    <b>Version 0.10.2</b>
+    Stand Juli 2026<br>
+    AGPL · self-hosted
+  </div>
+</div>
+
+<div class="lead">
+  Ersetzt den handschriftlichen bzw. PDF-basierten Ausbildungsnachweis durch
+  einen <strong>Einreichen/Prüfen-Workflow</strong> direkt in Nextcloud. Azubis
+  tragen täglich ein und reichen die Woche ein; ein Ausbilder akzeptiert oder
+  weist mit Kommentar zurück. Nach vier akzeptierten Wochen entsteht automatisch
+  ein <strong>mehrseitiges, IHK-konformes PDF</strong>. Jeder Betrieb betreibt
+  die App in seiner eigenen Nextcloud-Instanz.
+</div>
+
+<div class="cols">
+  <div class="col">
+    <h2>So läuft eine Woche</h2>
+    <ol class="flow">
+      <li><b>Eintragen</b> — Azubi erfasst täglich Tätigkeiten, Stunden, Berufsschul­fächer, Feiertag/Urlaub/Krankheit.</li>
+      <li><b>Einreichen</b> — die fertige Woche geht an den Ausbilder; der Verantwortliche wird benachrichtigt.</li>
+      <li><b>Prüfen</b> — Ausbilder sieht alle Tageseinträge und <b>akzeptiert</b> oder <b>weist mit Kommentar zurück</b>.</li>
+      <li><b>Korrigieren</b> — zurückgewiesene Wochen bearbeitet der Azubi und reicht sie erneut ein.</li>
+      <li><b>PDF</b> — nach 4 akzeptierten Wochen automatisch im Dateibereich des Azubis.</li>
+    </ol>
+
+    <h2>Rollen</h2>
+    <div class="roles">
+      <div class="role">
+        <span class="rname">Auszubildende/r</span> — führt das eigene
+        Berichtsheft, trägt Tätigkeiten und Berufsschul­noten ein, reicht ein.
+      </div>
+      <div class="role">
+        <span class="rname">Ausbilder/in</span> — Mitglied der Gruppe
+        <code>berichtsheft-ausbilder</code>: richtet Stammdaten &amp; Fächer
+        ein, aktiviert Azubis, prüft Wochen. Alle Ausbilder sind
+        gleichberechtigt (Vertretungsfall); pro Azubi erhält ein
+        Verantwortlicher die Einreichungs-Meldung.
+      </div>
+    </div>
+  </div>
+
+  <div class="col">
+    <h2>Funktionen</h2>
+    <ul class="features">
+      <li><strong>Tages-Erfassung</strong> mit Fach, Stunden, Tätigkeit &amp; Unterrichtsinhalt</li>
+      <li><strong>Berufsschul-Noten</strong> je Fach (schriftlich / mündlich / Stegreif­aufgabe, gewichtet)</li>
+      <li><strong>Notenstand</strong> mit gewichtetem Durchschnitt &amp; PDF-Archivierung</li>
+      <li><strong>Lehrjahr-Verwaltung</strong> — unabhängig vom Ausbildungsjahr, historisiert</li>
+      <li><strong>Automatischer 4-Wochen-Export</strong> als IHK-konformes PDF</li>
+      <li><strong>IHK-Gesamtnachweis</strong> — Deckblatt + alle Wochen in einem PDF (max. 35&nbsp;MB)</li>
+      <li><strong>Deckblatt</strong> automatisch ab Azubi-Aktivierung</li>
+      <li><strong>Benachrichtigungen</strong> in-App &amp; per E-Mail</li>
+      <li><strong>Wöchentliche Erinnerung</strong> &amp; persönlicher <strong>Ausbilder-Digest</strong></li>
+      <li>Samstag/Sonntag optional zuschaltbar</li>
+    </ul>
+
+    <h2 style="margin-top:4mm">Technik &amp; Betrieb</h2>
+    <p style="margin-bottom:1.5mm">Läuft als reguläre App in der eigenen
+    Nextcloud — keine externen Dienste, alle Daten in Nextclouds Datenbank
+    und Dateibereich. Ein normales Nextcloud-Backup deckt alles ab.</p>
+    <div class="badges">
+      <span class="badge">Nextcloud 30–34</span>
+      <span class="badge">PHP 8.2+</span>
+      <span class="badge">Vue 3</span>
+      <span class="badge alt">System-Cron</span>
+      <span class="badge alt">SMTP-Mail</span>
+      <span class="badge alt">EU-Hosting empf.</span>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <span>Berichtsheft · Digitales IHK-Berichtsheft (AO2020)</span>
+  <span>Handbücher: <code>docs/HANDBUCH-AUSBILDER</code> · <code>docs/HANDBUCH-AZUBI</code></span>
+</footer>
+
+</body>
+</html>

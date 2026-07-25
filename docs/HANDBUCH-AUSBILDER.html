@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Berichtsheft — Handbuch für Ausbilderinnen und Ausbilder</title>
+<style>
+  :root {
+    --navy: #1c3d5a;
+    --accent: #2f7d95;
+    --soft: #eef3f6;
+    --line: #cfd8dd;
+    --text: #22303a;
+    --muted: #5c6b74;
+    --warn-bg: #fdf3e7;
+    --warn-line: #e0a458;
+    --tip-bg: #eaf4ef;
+    --tip-line: #4a9e78;
+  }
+  @page {
+    size: A4;
+    margin: 20mm 18mm 18mm 18mm;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body {
+    font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    color: var(--text);
+    font-size: 10.5pt;
+    line-height: 1.5;
+    margin: 0;
+  }
+  h1, h2, h3 { color: var(--navy); line-height: 1.2; }
+  h1 { font-size: 22pt; margin: 0 0 2mm; }
+  h2 {
+    font-size: 14pt;
+    margin: 9mm 0 3mm;
+    padding-bottom: 1.5mm;
+    border-bottom: 2px solid var(--accent);
+    break-after: avoid;
+  }
+  h3 { font-size: 11.5pt; margin: 5mm 0 1.5mm; break-after: avoid; }
+  p { margin: 0 0 2.5mm; }
+  ul, ol { margin: 0 0 3mm; padding-left: 5.5mm; }
+  li { margin-bottom: 1.2mm; }
+  a { color: var(--accent); text-decoration: none; }
+  code {
+    font-family: "Consolas", "Courier New", monospace;
+    background: var(--soft);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 0.3mm 1.2mm;
+    font-size: 9.2pt;
+  }
+  strong { color: var(--navy); }
+
+  .titlepage {
+    padding: 4mm 0 6mm;
+    border-bottom: 3px solid var(--navy);
+    margin-bottom: 7mm;
+  }
+  .kicker {
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-size: 9pt;
+    color: var(--accent);
+    font-weight: 700;
+    margin-bottom: 2mm;
+  }
+  .subtitle { color: var(--muted); font-size: 12pt; margin-top: 1mm; }
+  .meta {
+    margin-top: 5mm;
+    font-size: 9pt;
+    color: var(--muted);
+    display: flex;
+    gap: 8mm;
+    flex-wrap: wrap;
+  }
+  .meta b { color: var(--navy); }
+
+  .toc {
+    background: var(--soft);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 4mm 6mm;
+    margin-bottom: 6mm;
+  }
+  .toc h2 { border: none; margin: 0 0 2mm; font-size: 12pt; }
+  .toc ol { columns: 2; column-gap: 10mm; margin: 0; padding-left: 5mm; }
+  .toc li { break-inside: avoid; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 2mm 0 4mm;
+    font-size: 9.6pt;
+  }
+  th, td {
+    border: 1px solid var(--line);
+    padding: 1.8mm 2.5mm;
+    text-align: left;
+    vertical-align: top;
+  }
+  th { background: var(--navy); color: #fff; font-weight: 600; }
+  tbody tr:nth-child(even) { background: var(--soft); }
+
+  .callout {
+    border-left: 4px solid var(--accent);
+    background: var(--soft);
+    padding: 2.5mm 4mm;
+    margin: 3mm 0;
+    border-radius: 0 4px 4px 0;
+    break-inside: avoid;
+  }
+  .callout.tip { border-left-color: var(--tip-line); background: var(--tip-bg); }
+  .callout.warn { border-left-color: var(--warn-line); background: var(--warn-bg); }
+  .callout .label {
+    font-weight: 700;
+    color: var(--navy);
+    display: block;
+    margin-bottom: 0.8mm;
+    font-size: 9.5pt;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .callout.tip .label { color: var(--tip-line); }
+  .callout.warn .label { color: #b06a15; }
+  .callout p:last-child { margin-bottom: 0; }
+
+  .steps { counter-reset: step; list-style: none; padding-left: 0; }
+  .steps > li {
+    counter-increment: step;
+    position: relative;
+    padding-left: 9mm;
+    margin-bottom: 2.5mm;
+  }
+  .steps > li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0;
+    top: -0.3mm;
+    width: 6mm;
+    height: 6mm;
+    background: var(--accent);
+    color: #fff;
+    border-radius: 50%;
+    font-size: 8.5pt;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  section { break-inside: auto; }
+  h2 { break-before: auto; }
+  .avoid-break { break-inside: avoid; }
+
+  footer {
+    margin-top: 8mm;
+    padding-top: 3mm;
+    border-top: 1px solid var(--line);
+    font-size: 8.5pt;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+
+<div class="titlepage">
+  <div class="kicker">Digitales IHK-Berichtsheft · Nextcloud-App</div>
+  <h1>Handbuch für Ausbilderinnen und Ausbilder</h1>
+  <div class="subtitle">Betrieb einrichten, Auszubildende verwalten, Wochennachweise prüfen</div>
+  <div class="meta">
+    <span><b>App-Version:</b> 0.10.2</span>
+    <span><b>Stand:</b> Juli 2026</span>
+    <span><b>Zielgruppe:</b> Ausbilder / Berichtsheft-Verantwortliche</span>
+  </div>
+</div>
+
+<div class="toc">
+  <h2>Inhalt</h2>
+  <ol>
+    <li>Was diese App macht</li>
+    <li>Rolle, Zugang und Navigation</li>
+    <li>Betriebs-Stammdaten einrichten</li>
+    <li>Berufsschul-Fächer &amp; Lehrjahre</li>
+    <li>Auszubildende aktivieren</li>
+    <li>Azubis verwalten &amp; Status pflegen</li>
+    <li>Wochennachweise prüfen</li>
+    <li>Der Vertretungsfall</li>
+    <li>Noten &amp; Notenstand</li>
+    <li>PDF-Erzeugung &amp; IHK-Gesamtnachweis</li>
+    <li>Benachrichtigungen &amp; Digest</li>
+    <li>Häufige Fragen</li>
+  </ol>
+</div>
+
+<section>
+  <h2>1 · Was diese App macht</h2>
+  <p>Das <strong>Berichtsheft</strong> ersetzt den handschriftlichen bzw.
+  PDF-basierten Ausbildungsnachweis durch einen digitalen
+  <strong>Einreichen/Prüfen-Workflow</strong> direkt in Nextcloud. Auszubildende
+  tragen ihre täglichen Tätigkeiten ein und reichen die Woche zur Prüfung ein;
+  Sie als Ausbilder <strong>akzeptieren</strong> die Woche oder
+  <strong>weisen sie mit Kommentar zurück</strong>.</p>
+  <p>Jeweils nach vier zusammenhängend akzeptierten Wochen erzeugt die App
+  automatisch ein mehrseitiges, IHK-konformes PDF im Dateibereich des Azubis.
+  Für Abgaben am Ende eines Ausbildungsabschnitts lässt sich zusätzlich ein
+  kombinierter <strong>IHK-Gesamtnachweis</strong> erzeugen.</p>
+  <div class="callout">
+    <span class="label">Grundprinzip</span>
+    <p>Alle Ausbilder einer Instanz sind <strong>gleichberechtigt</strong>
+    (Vertretungsfall). Pro Azubi ist ein <strong>Berichtsheft-Verantwortlicher</strong>
+    hinterlegt, der die Einreichungs-Benachrichtigung erhält — prüfen und
+    akzeptieren darf aber jeder Ausbilder.</p>
+  </div>
+</section>
+
+<section>
+  <h2>2 · Rolle, Zugang und Navigation</h2>
+  <p>Ausbilder-Funktionen sehen ausschließlich Nutzer, die Mitglied der
+  Nextcloud-Gruppe <code>berichtsheft-ausbilder</code> sind (der Gruppenname ist
+  in den Betriebs-Stammdaten änderbar). Ist Ihr Konto in dieser Gruppe, öffnen
+  Sie die App über das <strong>Berichtsheft-Symbol</strong> in der oberen
+  Nextcloud-Leiste; im App-Menü erscheint dann zusätzlich der Bereich
+  <strong>Verwaltung</strong>.</p>
+  <div class="callout warn">
+    <span class="label">Wichtig</span>
+    <p>Ein Ausbilder-Konto kann <strong>nicht gleichzeitig als Azubi</strong>
+    aktiviert werden. Das ist bewusst so, damit niemand sein eigenes
+    Berichtsheft abnimmt. Falls Sie kein Verwaltungsmenü sehen, ist Ihr Konto
+    vermutlich noch nicht in der Ausbilder-Gruppe — bitte den Systemverwalter
+    kontaktieren.</p>
+  </div>
+</section>
+
+<section>
+  <h2>3 · Betriebs-Stammdaten einrichten</h2>
+  <p>Einmalig pro Betrieb, im Bereich <strong>Verwaltung</strong>. Diese Angaben
+  erscheinen auf dem Deckblatt jedes Azubi-Berichtshefts:</p>
+  <table>
+    <thead><tr><th>Feld</th><th>Bedeutung</th></tr></thead>
+    <tbody>
+      <tr><td>Ausbildungsbetrieb</td><td>Rechtliche Firmierung — steht auf jedem Deckblatt.</td></tr>
+      <tr><td>Betriebsadresse</td><td>Anschrift des Betriebs (Deckblatt-Pflichtfeld).</td></tr>
+      <tr><td>Ausbildungsjahr-Start</td><td>Kalendertag (MM-TT, z.&nbsp;B. <code>09-01</code>), ab dem jedes Jahr ein neues Lehrjahr beginnt. Kann je Bundesland abweichen.</td></tr>
+      <tr><td>Ausbilder-Gruppenname</td><td>Nur ändern, falls Ihre Nextcloud-Gruppe anders heißt als <code>berichtsheft-ausbilder</code>.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>4 · Berufsschul-Fächer &amp; Lehrjahre</h2>
+  <p>In der Verwaltung legen Sie die <strong>Berufsschul-Fächer</strong> an und
+  ordnen sie den jeweiligen Lehrjahren zu. Nur zugeordnete Fächer stehen dem
+  Azubi im entsprechenden Lehrjahr zur Auswahl.</p>
+  <div class="callout tip">
+    <span class="label">Lehrjahr ≠ Ausbildungsjahr</span>
+    <p>Das Lehrjahr wird bewusst nicht automatisch berechnet, sondern je Azubi
+    festgelegt (Menü <strong>Lehrjahr-Zuweisung</strong>). Ein Wiederholer kann
+    z.&nbsp;B. im 2.&nbsp;Ausbildungsjahr, aber weiterhin im 1.&nbsp;Lehrjahr
+    sein. Jede Zuweisung gilt ab einem Datum und wird historisch geführt.</p>
+  </div>
+</section>
+
+<section>
+  <h2>5 · Auszubildende aktivieren</h2>
+  <p>Für jeden Azubi muss zuerst ein reguläres Nextcloud-Benutzerkonto
+  existieren. Danach in der Verwaltung:</p>
+  <ol class="steps">
+    <li>Den Benutzer aus der Liste wählen und <strong>„Als Azubi aktivieren"</strong> anklicken.</li>
+    <li><strong>Ausbildungsberuf</strong> auswählen (die neugeordneten IT-Berufe nach AO2020).</li>
+    <li><strong>Ausbildungsstart</strong> (Datum) sowie Ausbildungsjahr und Lehrjahr zu Beginn eintragen.</li>
+    <li>Einen <strong>Berichtsheft-Verantwortlichen</strong> aus der Ausbilder-Gruppe zuweisen.</li>
+    <li>Optional: <strong>Ausbildungsabteilung</strong> eintragen.</li>
+  </ol>
+  <p>Direkt nach der Aktivierung wird automatisch eine <strong>Deckblatt-PDF</strong>
+  im Dateibereich des Azubis erzeugt. Der Azubi trägt Vor- und Nachnamen selbst
+  ein (Einstellungen → Persönlich → Berichtsheft) — das kann der Ausbilder nicht
+  für ihn übernehmen.</p>
+</section>
+
+<section>
+  <h2>6 · Azubis verwalten &amp; Status pflegen</h2>
+  <p>Pro aktivem Azubi stehen in der Verwaltung folgende Aktionen bereit:</p>
+  <table>
+    <thead><tr><th>Aktion</th><th>Wirkung</th></tr></thead>
+    <tbody>
+      <tr><td>Bearbeiten</td><td>Stammdaten nachträglich ändern (z.&nbsp;B. Verantwortlichen wechseln, Abteilung, Beruf).</td></tr>
+      <tr><td>Beenden</td><td>Ausbildung als beendet markieren (Abschluss/Abbruch). Der Azubi verschwindet aus der aktiven Wochenübersicht, die Daten bleiben erhalten.</td></tr>
+      <tr><td>Reaktivieren</td><td>Einen beendeten Azubi wieder normal nutzbar machen.</td></tr>
+      <tr><td>Deckblatt neu erzeugen</td><td>Deckblatt-PDF neu erstellen, z.&nbsp;B. nach einer Namenskorrektur.</td></tr>
+      <tr><td>Lehrjahr-Zuweisung</td><td>Neues Lehrjahr ab einem Stichtag festlegen (Historie bleibt sichtbar).</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>7 · Wochennachweise prüfen</h2>
+  <p>Sobald ein Azubi eine Woche einreicht, erhält der zuständige
+  Verantwortliche eine Benachrichtigung. Im Bereich <strong>Prüfen</strong>
+  sehen Sie die eingereichte Woche mit <strong>allen</strong> Tageseinträgen
+  (Fach, Stunden, Unterrichtsinhalt und Tätigkeit je Tag — nicht nur eine
+  Zusammenfassung).</p>
+  <ol class="steps">
+    <li>Woche öffnen und die Tageseinträge durchsehen.</li>
+    <li><strong>Akzeptieren</strong> — die Woche gilt als abgenommen; der Azubi wird benachrichtigt.</li>
+    <li>Oder <strong>Zurückweisen mit Kommentar</strong> — der Kommentar ist Pflicht (z.&nbsp;B. „Bitte Dienstag ergänzen"). Der Azubi erhält ihn per In-App-Benachrichtigung und E-Mail, korrigiert die Woche und reicht sie erneut ein.</li>
+  </ol>
+  <div class="callout tip">
+    <span class="label">Statuswerte</span>
+    <p><strong>Offen</strong> → in Bearbeitung beim Azubi · <strong>Eingereicht</strong>
+    → wartet auf Ihre Prüfung · <strong>Akzeptiert</strong> → abgenommen ·
+    <strong>Zurückgewiesen</strong> → mit Kommentar zurück beim Azubi.</p>
+  </div>
+</section>
+
+<section>
+  <h2>8 · Der Vertretungsfall</h2>
+  <p>Alle Mitglieder der Ausbilder-Gruppe können <strong>jede</strong> Woche
+  <strong>jedes</strong> Azubis sehen und prüfen — auch dann, wenn sie nicht der
+  eingetragene Verantwortliche sind. So bleibt der Betrieb bei Krankheit oder
+  Urlaub des Verantwortlichen handlungsfähig. Die
+  <strong>Einreichungs-Benachrichtigung</strong> erhält weiterhin nur der
+  eingetragene Verantwortliche.</p>
+</section>
+
+<section>
+  <h2>9 · Noten &amp; Notenstand</h2>
+  <p>Auf Berufsschultagen kann der Azubi je Fach eine Note mit ihrer Art
+  erfassen. Die Notenarten sind:</p>
+  <table>
+    <thead><tr><th>Notenart</th><th>Gewichtung</th></tr></thead>
+    <tbody>
+      <tr><td>Schriftlich</td><td>volle Gewichtung</td></tr>
+      <tr><td>Mündlich</td><td>zählt 50&nbsp;%</td></tr>
+      <tr><td>Stegreifaufgabe</td><td>zählt 50&nbsp;%</td></tr>
+    </tbody>
+  </table>
+  <p>Im Bereich <strong>Notenstand</strong> sehen Sie je Azubi und Lehrjahr die
+  erfassten Noten und den <strong>gewichteten Durchschnitt</strong> pro Fach.
+  Bei einem Lehrjahr-Wechsel wird der Notenstand als PDF archiviert; eine
+  aktuelle Übersicht lässt sich jederzeit als Live-PDF erzeugen.</p>
+</section>
+
+<section>
+  <h2>10 · PDF-Erzeugung &amp; IHK-Gesamtnachweis</h2>
+  <h3>Automatischer 4-Wochen-Export</h3>
+  <p>Sobald vier zusammenhängende Wochen eines Azubis akzeptiert sind, erzeugt
+  die App automatisch ein mehrseitiges PDF im Ordner
+  <code>Berichtsheft&nbsp;-&nbsp;&lt;Nachname&gt;,&nbsp;&lt;Vorname&gt;</code>.
+  Der Server prüft das im Hintergrund; nach Freigabe der vierten Woche kann es
+  einige Minuten dauern.</p>
+  <h3>IHK-Gesamtnachweis</h3>
+  <p>Der Button <strong>„IHK-Gesamtnachweis erzeugen"</strong> kombiniert das
+  Deckblatt und <strong>alle</strong> bislang akzeptierten Wochen zu einem
+  einzigen PDF (Vorgabe max. 35&nbsp;MB) — gedacht für die Abgabe zum
+  Ausbildungsabschnitt oder -ende. Die Seiten stehen in aufsteigender
+  Nachweis-Nummer (nicht nach Erfassungsdatum). Erneutes Erzeugen ersetzt die
+  vorhandene Datei.</p>
+  <div class="callout">
+    <span class="label">Zugriff</span>
+    <p>Alle erzeugten Dateien liegen im Ordner des Azubis, der automatisch mit
+    der Ausbilder-Gruppe geteilt ist — eine gesonderte Freigabe ist nicht nötig.</p>
+  </div>
+</section>
+
+<section>
+  <h2>11 · Benachrichtigungen &amp; Digest</h2>
+  <ul>
+    <li><strong>Einreichung:</strong> der Verantwortliche wird benachrichtigt, wenn „sein" Azubi eine Woche einreicht.</li>
+    <li><strong>Ausbilder-Digest:</strong> Zusammenfassung offener/eingereichter Wochen zu Ihrem <strong>persönlich</strong> eingestellten Termin (Einstellungen → Persönlich → Berichtsheft). Jeder Ausbilder bekommt nur seinen eigenen Digest.</li>
+    <li><strong>Lehrjahresabfrage:</strong> jährliche Erinnerung, das Lehrjahr der Azubis zu prüfen.</li>
+  </ul>
+  <div class="callout warn">
+    <span class="label">Voraussetzung</span>
+    <p>Automatische Erinnerungen, Digest und PDF-Export laufen über den
+    Nextcloud-System-Cronjob. Läuft dieser nicht (alle 5&nbsp;Minuten), bleiben
+    diese Funktionen aus — das ist eine Server-Einstellung des Systemverwalters.</p>
+  </div>
+</section>
+
+<section>
+  <h2>12 · Häufige Fragen</h2>
+  <h3>Ein Azubi sieht seine Fächer nicht.</h3>
+  <p>Prüfen Sie, ob die Fächer dem <strong>aktuellen Lehrjahr</strong> des Azubis
+  zugeordnet sind (Abschnitt 4) und ob die Lehrjahr-Zuweisung stimmt.</p>
+  <h3>Kann ich einen Ausbilder als Azubi eintragen?</h3>
+  <p>Nein — bewusst nicht. Mitglieder der Ausbilder-Gruppe müssten dafür zuerst
+  aus der Gruppe entfernt werden.</p>
+  <h3>Das PDF kommt nicht.</h3>
+  <p>Es entsteht erst, wenn <strong>vier zusammenhängende</strong> Wochen
+  akzeptiert sind, und wird im Hintergrund erzeugt — einige Minuten Geduld. Bleibt
+  es aus, den Cronjob-Betrieb beim Systemverwalter prüfen lassen.</p>
+</section>
+
+<footer>
+  Berichtsheft — Digitales IHK-Berichtsheft für Auszubildende in IT-Berufen ·
+  Handbuch für Ausbilderinnen und Ausbilder · App-Version 0.10.2 ·
+  Detaillierte Installations- und Betriebshinweise: <code>docs/INSTALL-ADMIN-GUIDE.md</code>
+</footer>
+
+</body>
+</html>
