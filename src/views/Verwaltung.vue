@@ -15,8 +15,8 @@ const AUSBILDUNGSBERUFE = [
 	{ id: 'fisi', label: 'Fachinformatiker/-in Systemintegration' },
 	{ id: 'fidp', label: 'Fachinformatiker/-in Daten- und Prozessanalyse' },
 	{ id: 'fidv', label: 'Fachinformatiker/-in Digitale Vernetzung' },
-	{ id: 'kfitsm', label: 'Kaufmann/-frau fuer IT-System-Management' },
-	{ id: 'kfdm', label: 'Kaufmann/-frau fuer Digitalisierungsmanagement' },
+	{ id: 'kfitsm', label: 'Kaufmann/-frau für IT-System-Management' },
+	{ id: 'kfdm', label: 'Kaufmann/-frau für Digitalisierungsmanagement' },
 ]
 
 interface Stammdaten {
@@ -189,7 +189,7 @@ async function speichereBearbeitung() {
 		await ladeNutzer()
 		zeigeErfolg(`${name} wurde aktualisiert.`)
 	} catch (e) {
-		aktionsFehler.value = fehlermeldung(e, 'Aenderungen konnten nicht gespeichert werden.')
+		aktionsFehler.value = fehlermeldung(e, 'Änderungen konnten nicht gespeichert werden.')
 	}
 }
 
@@ -252,14 +252,14 @@ onMounted(() => {
 
 		<h2>Betriebs-Stammdaten</h2>
 		<p class="hinweis">
-			Einmalig fuer den ganzen Betrieb - erscheint auf dem Deckblatt
+			Einmalig für den ganzen Betrieb – erscheint auf dem Deckblatt
 			jedes Azubi-Berichtshefts.
 		</p>
 		<div class="formular">
 			<NcTextField v-model="stammdaten.ausbildungsbetriebName" label="Ausbildungsbetrieb (rechtliche Firmierung)" />
 			<NcTextField v-model="stammdaten.ausbildungsbetriebAdresse" label="Betriebsadresse" />
 			<NcTextField v-model="stammdaten.ausbildungsjahrStart" label="Ausbildungsjahr-Start (MM-TT, z.B. 09-01)" />
-			<NcTextField v-model="stammdaten.ausbilderGruppe" label="Nextcloud-Gruppenname fuer Ausbilder" />
+			<NcTextField v-model="stammdaten.ausbilderGruppe" label="Nextcloud-Gruppenname für Ausbilder" />
 			<NcButton type="primary" @click="speichereStammdaten">Speichern</NcButton>
 		</div>
 

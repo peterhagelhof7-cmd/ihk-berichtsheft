@@ -46,7 +46,7 @@ onMounted(lade)
 		<table class="historie-tabelle">
 			<thead>
 				<tr>
-					<th>Gueltig ab</th>
+					<th>Gültig ab</th>
 					<th>Lehrjahr</th>
 					<th>Festgelegt von</th>
 				</tr>
@@ -61,7 +61,7 @@ onMounted(lade)
 		</table>
 
 		<div class="neu-formular">
-			<NcTextField v-model="neuGueltigAb" type="date" label="Gueltig ab" />
+			<NcTextField v-model="neuGueltigAb" type="date" label="Gültig ab" />
 			<NcTextField v-model="neuLehrjahr" type="number" label="Lehrjahr" />
 			<NcButton type="primary" @click="anlegen">Zuweisung anlegen</NcButton>
 		</div>

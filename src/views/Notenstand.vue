@@ -17,7 +17,7 @@ interface Notenstand { lehrjahr: number, gueltigAb: string, faecher: FachNoten[]
 const NOTENART_LABEL: Record<string, string> = {
 	schriftlich: 'Schriftlich',
 	muendlich: 'Mündlich',
-	stehgreif: 'Stehgreifaufgabe',
+	stehgreif: 'Stegreifaufgabe',
 }
 
 const azubis = ref<AzubiListEintrag[]>([])
@@ -81,10 +81,10 @@ onMounted(ladeAzubis)
 
 				<template v-if="notenstand">
 					<h3>{{ ausgewaehlterAzubi.displayName }} — Lehrjahr {{ notenstand.lehrjahr }}</h3>
-					<p class="hinweis">Zeitraum seit {{ formatiereDatum(notenstand.gueltigAb) }} — mündliche Noten und Stehgreifaufgaben zählen nur 50% für den Notenschnitt.</p>
+					<p class="hinweis">Zeitraum seit {{ formatiereDatum(notenstand.gueltigAb) }} — mündliche Noten und Stegreifaufgaben zählen nur 50% für den Notenschnitt.</p>
 
 					<NcNoteCard v-if="notenstand.faecher.length === 0" type="info">
-						Fuer dieses Lehrjahr sind keine Faecher hinterlegt.
+						Für dieses Lehrjahr sind keine Fächer hinterlegt.
 					</NcNoteCard>
 
 					<div v-for="fach in notenstand.faecher" :key="fach.fachId" class="fach-block">

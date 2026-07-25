@@ -26,6 +26,15 @@ interface WocheDaten {
 
 const TAGE_LABEL = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag']
 
+// Anzeige-Labels fuer den intern gespeicherten Status-Wert (der Wert selbst
+// bleibt ASCII, nur die Anzeige bekommt korrekte Umlaute/Grossschreibung).
+const STATUS_LABEL: Record<string, string> = {
+	offen: 'Offen',
+	eingereicht: 'Eingereicht',
+	akzeptiert: 'Akzeptiert',
+	zurueckgewiesen: 'Zurückgewiesen',
+}
+
 function heutigesDatum(): string {
 	const heute = new Date()
 	const jahr = heute.getFullYear()
@@ -184,7 +193,7 @@ onMounted(lade)
 		<NcNoteCard v-if="fehler" type="error">{{ fehler }}</NcNoteCard>
 		<NcNoteCard v-if="meldung" type="success">{{ meldung }}</NcNoteCard>
 		<NcNoteCard v-if="woche && woche.status !== 'offen'" type="info">
-			Status: {{ woche.status }}
+			Status: {{ STATUS_LABEL[woche.status] ?? woche.status }}
 			<span v-if="woche.status === 'zurueckgewiesen'"> — bitte korrigieren und erneut einreichen.</span>
 		</NcNoteCard>
 

@@ -15,8 +15,8 @@ declare(strict_types=1);
 $e = static fn (?string $v): string => htmlspecialchars($v ?? '', ENT_QUOTES, 'UTF-8');
 $notenArtLabel = [
 	'schriftlich' => 'Schriftlich',
-	'muendlich' => 'Muendlich',
-	'stehgreif' => 'Stehgreifaufgabe',
+	'muendlich' => 'Mündlich',
+	'stehgreif' => 'Stegreifaufgabe',
 ];
 
 ?>

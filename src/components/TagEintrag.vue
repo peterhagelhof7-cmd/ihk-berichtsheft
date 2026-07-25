@@ -70,7 +70,7 @@ function speichern() {
 			@update:model-value="(t) => { lokal.tagTyp = t ? t.id : 'betrieb' }" />
 
 		<template v-if="brauchtTaetigkeit">
-			<NcTextArea v-model="lokal.taetigkeit" :disabled="!bearbeitbar" placeholder="Ausgefuehrte Arbeiten, Unterweisungen, betrieblicher Unterricht, usw." />
+			<NcTextArea v-model="lokal.taetigkeit" :disabled="!bearbeitbar" placeholder="Ausgeführte Arbeiten, Unterweisungen, betrieblicher Unterricht, usw." />
 			<NcTextField
 				:model-value="lokal.stunden?.toString() ?? ''"
 				type="number"
@@ -88,11 +88,11 @@ function speichern() {
 				:bearbeitbar="bearbeitbar"
 				@update:model-value="(w) => fachAktualisieren(i, w)"
 				@remove="fachEntfernen(i)" />
-			<NcButton v-if="bearbeitbar" @click="fachHinzufuegen">Fach hinzufuegen</NcButton>
+			<NcButton v-if="bearbeitbar" @click="fachHinzufuegen">Fach hinzufügen</NcButton>
 		</template>
 
 		<p v-else-if="nurLabel" class="hinweis">
-			Kein Taetigkeitstext/Fach noetig — im PDF erscheint nur „{{ TAGTYPEN.find(t => t.id === lokal.tagTyp)?.label }}".
+			Kein Tätigkeitstext/Fach nötig — im PDF erscheint nur „{{ TAGTYPEN.find(t => t.id === lokal.tagTyp)?.label }}".
 		</p>
 
 		<NcButton v-if="bearbeitbar" type="primary" @click="speichern">Speichern</NcButton>

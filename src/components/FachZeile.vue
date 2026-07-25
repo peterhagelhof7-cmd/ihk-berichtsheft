@@ -20,7 +20,7 @@ const NOTENARTEN = [
 	{ id: '', label: 'Keine Note' },
 	{ id: 'schriftlich', label: 'Schriftlich' },
 	{ id: 'muendlich', label: 'Mündlich (zählt 50%)' },
-	{ id: 'stehgreif', label: 'Stehgreifaufgabe (zählt 50%)' },
+	{ id: 'stehgreif', label: 'Stegreifaufgabe (zählt 50%)' },
 ]
 const NOTENWERTE = [1, 2, 3, 4, 5, 6].map((n) => ({ id: n, label: String(n) }))
 
@@ -54,7 +54,7 @@ function setzeNote(note: number | null) {
 				:disabled="!bearbeitbar"
 				:options="verfuegbareFaecher"
 				label="name"
-				placeholder="Fach waehlen"
+				placeholder="Fach wählen"
 				@update:model-value="(f) => setzeFach(f ? f.id : null)" />
 			<NcTextField
 				class="fach-zeile__stunden"

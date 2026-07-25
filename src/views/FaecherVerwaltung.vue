@@ -51,10 +51,10 @@ onMounted(lade)
 
 <template>
 	<div class="faecher-verwaltung">
-		<h2>Berufsschul-Faecher</h2>
+		<h2>Berufsschul-Fächer</h2>
 		<p class="hinweis">
-			Fuer die Berufsschul-Eingabe: manche Faecher gibt es nur im 1./2.
-			Lehrjahr, manche nur im 3. - je Fach die geltenden Lehrjahre
+			Für die Berufsschul-Eingabe: manche Fächer gibt es nur im 1./2.
+			Lehrjahr, manche nur im 3. – je Fach die geltenden Lehrjahre
 			ankreuzen.
 		</p>
 
@@ -75,7 +75,7 @@ onMounted(lade)
 							@update:model-value="lehrjahrUmschalten(fach, lj)" />
 					</td>
 					<td>
-						<NcButton @click="loeschen(fach.id)">Loeschen</NcButton>
+						<NcButton @click="loeschen(fach.id)">Löschen</NcButton>
 					</td>
 				</tr>
 			</tbody>
