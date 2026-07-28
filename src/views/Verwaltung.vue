@@ -9,7 +9,7 @@ import { api } from '../api.ts'
 import FaecherVerwaltung from './FaecherVerwaltung.vue'
 import LehrjahrZuweisung from './LehrjahrZuweisung.vue'
 
-// -- AO2020-Berufsliste (Plan Abschnitt 2), fest, aendert sich nicht --
+// -- Berufsliste (AO2020-IT-Berufe + IT-System-Elektroniker/-in), fest --
 const AUSBILDUNGSBERUFE = [
 	{ id: 'fiae', label: 'Fachinformatiker/-in Anwendungsentwicklung' },
 	{ id: 'fisi', label: 'Fachinformatiker/-in Systemintegration' },
@@ -17,6 +17,7 @@ const AUSBILDUNGSBERUFE = [
 	{ id: 'fidv', label: 'Fachinformatiker/-in Digitale Vernetzung' },
 	{ id: 'kfitsm', label: 'Kaufmann/-frau für IT-System-Management' },
 	{ id: 'kfdm', label: 'Kaufmann/-frau für Digitalisierungsmanagement' },
+	{ id: 'itse', label: 'IT-System-Elektroniker/-in' },
 ]
 
 interface Stammdaten {

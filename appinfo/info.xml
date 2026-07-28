@@ -18,7 +18,7 @@ mehrseitiges, IHK-konformes PDF erzeugt, sobald alle Wochen akzeptiert sind
 Ausbildungsberuf/Fachrichtung, Ausbildungsbetrieb und verantwortlichem
 Ausbilder. Jeder Betrieb installiert die App eigenständig in seiner eigenen
 Nextcloud-Instanz.]]></description>
-	<version>0.10.2</version>
+	<version>0.10.3</version>
 	<licence>agpl</licence>
 	<author mail="" homepage="">Berichtsheft-Projekt</author>
 	<namespace>Berichtsheft</namespace>

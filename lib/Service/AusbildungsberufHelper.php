@@ -20,6 +20,7 @@ class AusbildungsberufHelper {
 		'fidv' => ['Fachinformatiker/-in', 'Digitale Vernetzung'],
 		'kfitsm' => ['Kaufmann/-frau für IT-System-Management', '—'],
 		'kfdm' => ['Kaufmann/-frau für Digitalisierungsmanagement', '—'],
+		'itse' => ['IT-System-Elektroniker/-in', '—'],
 	];
 
 	public function getAusbildungsberufBezeichnung(string $enum): string {
