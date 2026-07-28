@@ -49,5 +49,6 @@ Nextcloud-Instanz.]]></description>
 	</background-jobs>
 	<commands>
 		<command>OCA\Berichtsheft\Command\DebugRunJob</command>
+		<command>OCA\Berichtsheft\Command\SeedDemo</command>
 	</commands>
 </info>
