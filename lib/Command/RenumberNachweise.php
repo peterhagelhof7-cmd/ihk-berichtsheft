@@ -96,8 +96,14 @@ class RenumberNachweise extends Command {
 				$output->writeln("  {$woche->getWocheVon()}: Nachweis $alt -> $neu");
 			}
 
-			$gesamtGeaendert += count($aenderungen);
 			if ($dryRun) {
+				// Nur im Dry-Run zaehlen "wuerde geaendert werden" - im echten
+				// Lauf erst NACH erfolgreichem Commit (s.u.), sonst wuerden bei
+				// einem Azubi mit zurueckgerolltem Fehler (z.B. Datenproblem wie
+				// "Wochen liegen vor dem Ausbildungsstart") dessen Aenderungen
+				// faelschlich als "korrigiert" mitgezaehlt, obwohl nichts
+				// geschrieben wurde.
+				$gesamtGeaendert += count($aenderungen);
 				continue;
 			}
 
@@ -121,6 +127,7 @@ class RenumberNachweise extends Command {
 				continue;
 			}
 
+			$gesamtGeaendert += count($aenderungen);
 			$geaenderteAzubiIds[] = $azubi->getId();
 		}
 
