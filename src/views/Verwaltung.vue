@@ -5,6 +5,7 @@ import NcTextField from '@nextcloud/vue/components/NcTextField'
 import NcNoteCard from '@nextcloud/vue/components/NcNoteCard'
 import NcSelect from '@nextcloud/vue/components/NcSelect'
 import NcCheckboxRadioSwitch from '@nextcloud/vue/components/NcCheckboxRadioSwitch'
+import { getFilePickerBuilder } from '@nextcloud/dialogs'
 import { api } from '../api.ts'
 import FaecherVerwaltung from './FaecherVerwaltung.vue'
 import LehrjahrZuweisung from './LehrjahrZuweisung.vue'
@@ -25,6 +26,7 @@ interface Stammdaten {
 	ausbildungsbetriebAdresse: string
 	ausbildungsjahrStart: string
 	ausbilderGruppe: string
+	logoPfad: string
 }
 
 interface AusbilderListEintrag {
@@ -54,6 +56,7 @@ const stammdaten = ref<Stammdaten>({
 	ausbildungsbetriebAdresse: '',
 	ausbildungsjahrStart: '09-01',
 	ausbilderGruppe: 'berichtsheft-ausbilder',
+	logoPfad: '',
 })
 const nutzer = ref<AzubiListEintrag[]>([])
 const zeigeBeendete = ref(false)
@@ -107,6 +110,24 @@ async function ladeStammdaten() {
 	} catch (e) {
 		ladeFehler.value = 'Stammdaten konnten nicht geladen werden.'
 	}
+}
+
+async function waehleLogo() {
+	try {
+		const pfad = await getFilePickerBuilder('Logo auswählen')
+			.setMultiSelect(false)
+			.setMimeTypeFilter(['image/png', 'image/jpeg', 'image/gif', 'image/webp'])
+			.allowDirectories(false)
+			.build()
+			.pick()
+		stammdaten.value.logoPfad = pfad
+	} catch (e) {
+		// Dialog ohne Auswahl geschlossen (FilePickerClosed) - kein Fehler.
+	}
+}
+
+function entferneLogo() {
+	stammdaten.value.logoPfad = ''
 }
 
 async function speichereStammdaten() {
@@ -261,6 +282,17 @@ onMounted(() => {
 			<NcTextField v-model="stammdaten.ausbildungsbetriebAdresse" label="Betriebsadresse" />
 			<NcTextField v-model="stammdaten.ausbildungsjahrStart" label="Ausbildungsjahr-Start (MM-TT, z.B. 09-01)" />
 			<NcTextField v-model="stammdaten.ausbilderGruppe" label="Nextcloud-Gruppenname für Ausbilder" />
+			<div class="logo-auswahl">
+				<span v-if="stammdaten.logoPfad" class="logo-pfad">Logo: {{ stammdaten.logoPfad }}</span>
+				<span v-else class="logo-pfad">Kein Logo ausgewählt.</span>
+				<NcButton @click="waehleLogo">Logo auswählen…</NcButton>
+				<NcButton v-if="stammdaten.logoPfad" @click="entferneLogo">Entfernen</NcButton>
+			</div>
+			<p class="hinweis">
+				Logo aus den eigenen Nextcloud-Dateien – erscheint groß auf dem
+				Deckblatt und verkleinert in einer Ecke jedes Wochennachweises.
+				Wird erst mit "Speichern" übernommen.
+			</p>
 			<NcButton type="primary" @click="speichereStammdaten">Speichern</NcButton>
 		</div>
 
@@ -366,6 +398,15 @@ onMounted(() => {
 .hinweis {
 	color: var(--color-text-maxcontrast);
 	margin-bottom: 8px;
+}
+.logo-auswahl {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+.logo-pfad {
+	color: var(--color-text-maxcontrast);
+	overflow-wrap: anywhere;
 }
 .azubi-tabelle {
 	width: 100%;

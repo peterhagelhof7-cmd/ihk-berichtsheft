@@ -25,6 +25,7 @@ class DeckblattService {
 		private StammdatenService $stammdatenService,
 		private AusbildungsberufHelper $ausbildungsberufHelper,
 		private FileStorageService $fileStorageService,
+		private LogoService $logoService,
 		private IUserManager $userManager,
 	) {
 	}
@@ -46,6 +47,7 @@ class DeckblattService {
 			'fachrichtung' => $this->ausbildungsberufHelper->getFachrichtung($azubi->getAusbildungsberuf()),
 			'betriebsName' => $this->stammdatenService->getBetriebName(),
 			'verantwortlicherName' => $verantwortlicherName,
+			'logoDataUri' => $this->logoService->getLogoDataUri(),
 		];
 
 		return $this->renderTemplate(

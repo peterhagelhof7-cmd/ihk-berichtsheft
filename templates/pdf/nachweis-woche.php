@@ -8,8 +8,9 @@ declare(strict_types=1);
  * von ['label'=>string,'datum'=>string,'inhaltHtml'=>string bereits
  * escaped/formatiert,'stundenText'=>string]), $eingereichtVonName,
  * $eingereichtAmFormatiert, $akzeptiertVonName, $akzeptiertAmFormatiert,
- * $bemerkungen, $seitenumbruchDavor (bool). Wird von PdfExportService per
- * extract() befuellt (Plan Abschnitt 1/4) - HTML-Aufbereitung der
+ * $bemerkungen, $seitenumbruchDavor (bool), $logoDataUri (string|null - s.
+ * templates/pdf/deckblatt.php, hier verkleinert). Wird von PdfExportService
+ * per extract() befuellt (Plan Abschnitt 1/4) - HTML-Aufbereitung der
  * Tagesinhalte (Freitext vs. Fach-Liste vs. Sonderlabel
  * Feiertag/Urlaub/Krankheit) passiert bereits im PHP-Code, nicht hier.
  *
@@ -26,7 +27,8 @@ $klasse = 'nachweis-' . (int)$nachweisNr;
 ?>
 <style>
 	html, body { margin: 0; padding: 0; }
-	.<?= $klasse ?> { font-family: sans-serif; font-size: 9pt; padding: 10mm; <?= $seitenumbruchDavor ? 'page-break-before: always;' : '' ?> }
+	.<?= $klasse ?> { position: relative; font-family: sans-serif; font-size: 9pt; padding: 10mm; <?= $seitenumbruchDavor ? 'page-break-before: always;' : '' ?> }
+	.<?= $klasse ?> .logo { position: absolute; top: 3mm; right: 3mm; max-width: 20mm; max-height: 12mm; }
 	.<?= $klasse ?> .kopf { width: 100%; border-collapse: collapse; margin-bottom: 4mm; }
 	.<?= $klasse ?> .kopf td { padding: 1mm 2mm; font-size: 10pt; }
 	.<?= $klasse ?> .kopf td.label { font-weight: bold; width: 30%; }
@@ -41,6 +43,9 @@ $klasse = 'nachweis-' . (int)$nachweisNr;
 </style>
 
 <div class="<?= $klasse ?>">
+	<?php if ($logoDataUri !== null): ?>
+		<img class="logo" src="<?= $e($logoDataUri) ?>" alt="Logo">
+	<?php endif; ?>
 	<table class="kopf">
 		<tr>
 			<td class="label">Ausbildungsnachweis Nr.</td><td><?= $e((string)$nachweisNr) ?></td>

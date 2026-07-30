@@ -20,6 +20,8 @@ class StammdatenService {
 	public const KEY_BETRIEB_ADRESSE = 'ausbildungsbetrieb_adresse';
 	public const KEY_AUSBILDUNGSJAHR_START = 'ausbildungsjahr_start';
 	public const DEFAULT_AUSBILDUNGSJAHR_START = '09-01';
+	public const KEY_LOGO_OWNER_USER_ID = 'logo_owner_user_id';
+	public const KEY_LOGO_PATH = 'logo_path';
 
 	public function __construct(
 		private IAppConfig $appConfig,
@@ -32,6 +34,18 @@ class StammdatenService {
 
 	public function getBetriebAdresse(): string {
 		return $this->appConfig->getValueString(Application::APP_ID, self::KEY_BETRIEB_ADRESSE, '');
+	}
+
+	/** Nextcloud-Nutzer-ID des Ausbilders, in dessen Dateibereich das Logo liegt (nicht zwingend der aktuell eingeloggte). */
+	public function getLogoOwnerUserId(): ?string {
+		$wert = $this->appConfig->getValueString(Application::APP_ID, self::KEY_LOGO_OWNER_USER_ID, '');
+		return $wert === '' ? null : $wert;
+	}
+
+	/** Pfad der Logo-Datei relativ zum Dateibereich von getLogoOwnerUserId(). */
+	public function getLogoPath(): ?string {
+		$wert = $this->appConfig->getValueString(Application::APP_ID, self::KEY_LOGO_PATH, '');
+		return $wert === '' ? null : $wert;
 	}
 
 	/** Format "MM-TT", z.B. "09-01". */

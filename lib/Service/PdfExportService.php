@@ -38,6 +38,7 @@ class PdfExportService {
 		private FachMapper $fachMapper,
 		private EintragService $eintragService,
 		private FileStorageService $fileStorageService,
+		private LogoService $logoService,
 		private IUserManager $userManager,
 	) {
 	}
@@ -122,6 +123,7 @@ class PdfExportService {
 			'akzeptiertAmFormatiert' => $woche->getAkzeptiertAm() !== null ? date('d.m.Y H:i', $woche->getAkzeptiertAm()) : '',
 			'bemerkungen' => $woche->getBemerkungen() ?? '',
 			'seitenumbruchDavor' => $seitenumbruchDavor,
+			'logoDataUri' => $this->logoService->getLogoDataUri(),
 		];
 
 		return $this->renderTemplate($appPath . '/templates/pdf/nachweis-woche.php', $vars);

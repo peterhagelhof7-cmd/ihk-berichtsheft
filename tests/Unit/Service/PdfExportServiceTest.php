@@ -14,6 +14,7 @@ use OCA\Berichtsheft\Db\FachMapper;
 use OCA\Berichtsheft\Db\Woche;
 use OCA\Berichtsheft\Service\EintragService;
 use OCA\Berichtsheft\Service\FileStorageService;
+use OCA\Berichtsheft\Service\LogoService;
 use OCA\Berichtsheft\Service\PdfExportService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -33,6 +34,7 @@ final class PdfExportServiceTest extends TestCase {
 	private FachMapper&MockObject $fachMapper;
 	private EintragService&MockObject $eintragService;
 	private FileStorageService&MockObject $fileStorageService;
+	private LogoService&MockObject $logoService;
 	private PdfExportService $service;
 	private string $appPath;
 
@@ -43,6 +45,8 @@ final class PdfExportServiceTest extends TestCase {
 		$this->eintragService = $this->createMock(EintragService::class);
 		$this->eintragService->method('getAusbildungsjahr')->willReturn(1);
 		$this->fileStorageService = $this->createMock(FileStorageService::class);
+		$this->logoService = $this->createMock(LogoService::class);
+		$this->logoService->method('getLogoDataUri')->willReturn(null);
 
 		$userManager = $this->createMock(\OCP\IUserManager::class);
 
@@ -52,6 +56,7 @@ final class PdfExportServiceTest extends TestCase {
 			$this->fachMapper,
 			$this->eintragService,
 			$this->fileStorageService,
+			$this->logoService,
 			$userManager,
 		);
 

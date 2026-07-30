@@ -6,6 +6,7 @@ namespace OCA\Berichtsheft\Controller;
 
 use OCA\Berichtsheft\AppInfo\Application;
 use OCA\Berichtsheft\Service\AusbilderGruppenService;
+use OCA\Berichtsheft\Service\LogoService;
 use OCA\Berichtsheft\Service\StammdatenService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\FrontpageRoute;
@@ -26,6 +27,7 @@ class StammdatenController extends Controller {
 		private IAppConfig $appConfig,
 		private StammdatenService $stammdatenService,
 		private AusbilderGruppenService $ausbilderGruppenService,
+		private LogoService $logoService,
 		private IUserSession $userSession,
 	) {
 		parent::__construct($appName, $request);
@@ -50,6 +52,7 @@ class StammdatenController extends Controller {
 			'ausbildungsbetriebAdresse' => $this->stammdatenService->getBetriebAdresse(),
 			'ausbildungsjahrStart' => $this->stammdatenService->getAusbildungsjahrStart(),
 			'ausbilderGruppe' => $this->ausbilderGruppenService->getGruppenName(),
+			'logoPfad' => $this->stammdatenService->getLogoPath() ?? '',
 		]);
 	}
 
@@ -60,6 +63,7 @@ class StammdatenController extends Controller {
 		?string $ausbildungsbetriebAdresse = null,
 		?string $ausbildungsjahrStart = null,
 		?string $ausbilderGruppe = null,
+		?string $logoPfad = null,
 	): JSONResponse {
 		if ($fail = $this->verifyAusbilder()) {
 			return $fail;
@@ -78,6 +82,17 @@ class StammdatenController extends Controller {
 		}
 		if ($ausbilderGruppe !== null) {
 			$this->ausbilderGruppenService->setGruppenName($ausbilderGruppe);
+		}
+		if ($logoPfad === '') {
+			$this->appConfig->setValueString(Application::APP_ID, StammdatenService::KEY_LOGO_OWNER_USER_ID, '');
+			$this->appConfig->setValueString(Application::APP_ID, StammdatenService::KEY_LOGO_PATH, '');
+		} elseif ($logoPfad !== null) {
+			$userId = $this->userSession->getUser()->getUID();
+			if (!$this->logoService->pruefeDatei($userId, $logoPfad)) {
+				return new JSONResponse(['error' => 'Die gewählte Datei konnte nicht als Logo geladen werden (nicht gefunden oder kein unterstütztes Bildformat).'], 422);
+			}
+			$this->appConfig->setValueString(Application::APP_ID, StammdatenService::KEY_LOGO_OWNER_USER_ID, $userId);
+			$this->appConfig->setValueString(Application::APP_ID, StammdatenService::KEY_LOGO_PATH, $logoPfad);
 		}
 		return $this->index();
 	}
