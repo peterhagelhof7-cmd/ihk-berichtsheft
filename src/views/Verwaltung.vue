@@ -118,6 +118,7 @@ async function waehleLogo() {
 			.setMultiSelect(false)
 			.setMimeTypeFilter(['image/png', 'image/jpeg', 'image/gif', 'image/webp'])
 			.allowDirectories(false)
+			.addButton({ label: 'Übernehmen', variant: 'primary', callback: () => {} })
 			.build()
 			.pick()
 		stammdaten.value.logoPfad = pfad
