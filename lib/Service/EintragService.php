@@ -83,6 +83,30 @@ class EintragService {
 	}
 
 	/**
+	 * Fortlaufende Ausbildungsnachweis-Nummer fuer eine Woche - IMMER aus dem
+	 * kalendarischen Abstand zum Ausbildungsstart (Stichtag) berechnet, NIE
+	 * aus der Reihenfolge, in der Wochen angelegt/ausgefuellt werden
+	 * (Bug-Fix: vorher wurde einfach die zuletzt vergebene Nummer + 1
+	 * verwendet - fuellte ein Azubi z.B. zuerst eine spaetere Kalenderwoche
+	 * aus, bekam sie faelschlich die naechste freie niedrige Nummer statt
+	 * ihrer kalendarisch korrekten). Nachweis 1 = die Woche (Montag-Sonntag),
+	 * die den Ausbildungsstart enthaelt; jede weitere Kalenderwoche zaehlt
+	 * unabhaengig von der Anlage-Reihenfolge um genau 1 weiter. Faellt
+	 * $wocheVon (sollte im Normalbetrieb nicht vorkommen) vor die
+	 * Startwoche, wird auf Nachweis 1 abgesichert statt einer negativen/
+	 * 0-Nummer.
+	 */
+	public static function nachweisNrFuer(Azubi $azubi, string $wocheVon): int {
+		$startWoche = new DateTimeImmutable(self::wocheVonFuer($azubi->getAusbildungsstart()));
+		$zielWoche = new DateTimeImmutable($wocheVon);
+		$diff = $startWoche->diff($zielWoche);
+		if ($diff->invert === 1) {
+			return 1;
+		}
+		return intdiv($diff->days, 7) + 1;
+	}
+
+	/**
 	 * Liefert die bh_woche-Zeile fuer den angegebenen Wochenbeginn, legt sie
 	 * bei Bedarf neu an (status=offen). bh_eintrag hat bewusst keinen FK auf
 	 * bh_woche (Plan Abschnitt 2) - Tageseintraege koennen vor der
@@ -94,7 +118,7 @@ class EintragService {
 		} catch (DoesNotExistException) {
 			$woche = new Woche();
 			$woche->setAzubiId($azubi->getId());
-			$woche->setNachweisNr($this->wocheMapper->letzteNachweisNr($azubi->getId()) + 1);
+			$woche->setNachweisNr(self::nachweisNrFuer($azubi, $wocheVon));
 			$woche->setWocheVon($wocheVon);
 			$woche->setWocheBis(self::wocheBisFuer($wocheVon));
 			$woche->setStatus(Woche::STATUS_OFFEN);

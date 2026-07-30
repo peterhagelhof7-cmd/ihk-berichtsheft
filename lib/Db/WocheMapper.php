@@ -59,12 +59,13 @@ class WocheMapper extends QBMapper {
 
 	/**
 	 * @return Woche[] sortiert nach nachweis_nr (die gedruckte "Ausbildungs-
-	 * nachweis Nr." auf jeder PDF-Seite) - NICHT nach woche_von. Beides
-	 * faellt im Normalfall zusammen, kann aber auseinanderlaufen (z.B. wenn
-	 * rueckwirkend eine fruehere Kalenderwoche nachgetragen wird und dabei
-	 * eine hoehere nachweis_nr als eine bereits bestehende spaetere Woche
-	 * bekommt) - die gedruckte Seitenreihenfolge darf der gedruckten
-	 * Nummer dann nie widersprechen.
+	 * nachweis Nr." auf jeder PDF-Seite). nachweis_nr wird seit dem
+	 * Nummerierungs-Bugfix deterministisch aus dem kalendarischen Abstand
+	 * zur Ausbildungsstart-Woche berechnet (EintragService::nachweisNrFuer),
+	 * faellt also IMMER mit der chronologischen woche_von-Reihenfolge
+	 * zusammen - die explizite Sortierung nach nachweis_nr bleibt trotzdem
+	 * die semantisch richtige Quelle (das ist die auf der PDF-Seite
+	 * gedruckte Nummer, nicht woche_von).
 	 */
 	public function findByExportId(int $exportId): array {
 		$qb = $this->db->getQueryBuilder();
@@ -96,15 +97,14 @@ class WocheMapper extends QBMapper {
 		return $this->findEntities($qb);
 	}
 
-	public function letzteNachweisNr(int $azubiId): int {
+	/** @return Woche[] ALLE Wochen eines Azubis (jeder Status), sortiert nach woche_von - fuer das Reparatur-Kommando berichtsheft:renumber-nachweise. */
+	public function findAllByAzubi(int $azubiId): array {
 		$qb = $this->db->getQueryBuilder();
-		$qb->selectAlias($qb->func()->max('nachweis_nr'), 'max_nr')
+		$qb->select('*')
 			->from($this->getTableName())
-			->where($qb->expr()->eq('azubi_id', $qb->createNamedParameter($azubiId, IQueryBuilder::PARAM_INT)));
-		$result = $qb->executeQuery();
-		$max = $result->fetchOne();
-		$result->closeCursor();
-		return $max === false || $max === null ? 0 : (int)$max;
+			->where($qb->expr()->eq('azubi_id', $qb->createNamedParameter($azubiId, IQueryBuilder::PARAM_INT)))
+			->orderBy('woche_von', 'ASC');
+		return $this->findEntities($qb);
 	}
 
 	/**

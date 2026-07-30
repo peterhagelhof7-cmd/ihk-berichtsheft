@@ -135,6 +135,22 @@ class FileStorageService {
 	}
 
 	/**
+	 * Prueft, ob bereits eine Datei mit diesem Namen im Berichtsheft-Ordner
+	 * des Azubis liegt - fuer berichtsheft:renumber-nachweise (nur bereits
+	 * vorhandene Gesamtnachweis-PDFs neu erzeugen, nicht fuer jeden Azubi
+	 * ungefragt einen ersten anlegen, s. dort).
+	 */
+	public function dateiExistiert(Azubi $azubi, string $dateiname): bool {
+		$ordner = $this->ensureBerichtsheftOrdnerUndGruppenShare($azubi);
+		try {
+			$ordner->get($dateiname);
+			return true;
+		} catch (NotFoundException) {
+			return false;
+		}
+	}
+
+	/**
 	 * Schreibt/ueberschreibt eine PDF-Datei im Berichtsheft-Ordner des
 	 * Azubis (Dateinamenskonvention s. PdfExportService/DeckblattService).
 	 */

@@ -31,6 +31,16 @@ class ExportMapper extends QBMapper {
 		return $this->findEntity($qb);
 	}
 
+	/** @return Export[] ALLE Buendel eines Azubis (jeder Status), sortiert nach export_nr - fuer das Reparatur-Kommando berichtsheft:renumber-nachweise. */
+	public function findByAzubi(int $azubiId): array {
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')
+			->from($this->getTableName())
+			->where($qb->expr()->eq('azubi_id', $qb->createNamedParameter($azubiId, IQueryBuilder::PARAM_INT)))
+			->orderBy('export_nr', 'ASC');
+		return $this->findEntities($qb);
+	}
+
 	/** @return Export[] alle noch nicht exportierten Buendel (fuer ExportGeneratorJob) */
 	public function findWartendAufWochen(): array {
 		$qb = $this->db->getQueryBuilder();

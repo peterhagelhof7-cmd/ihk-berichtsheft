@@ -111,6 +111,85 @@ final class EintragServiceTest extends TestCase {
 		self::assertSame('2026-07-19', EintragService::wocheBisFuer('2026-07-13'));
 	}
 
+	// -- nachweisNrFuer (Bugfix: kalendarischer Abstand statt Anlage-Reihenfolge) --
+
+	public function testNachweisNrFuerLiefertEinsFuerDieStartwoche(): void {
+		$azubi = $this->azubi();
+		$azubi->setAusbildungsstart('2026-01-05'); // ist bereits ein Montag
+
+		self::assertSame(1, EintragService::nachweisNrFuer($azubi, '2026-01-05'));
+	}
+
+	public function testNachweisNrFuerZaehltProKalenderwocheEins(): void {
+		$azubi = $this->azubi();
+		$azubi->setAusbildungsstart('2026-01-05');
+
+		self::assertSame(1, EintragService::nachweisNrFuer($azubi, '2026-01-05'));
+		self::assertSame(2, EintragService::nachweisNrFuer($azubi, '2026-01-12'));
+		self::assertSame(3, EintragService::nachweisNrFuer($azubi, '2026-01-19'));
+	}
+
+	/**
+	 * Der eigentliche Bug-Report: beginnt der Azubi seine Ausbildung so,
+	 * dass KW40/2025 kalendarisch die 5. Woche seit Ausbildungsstart ist,
+	 * MUSS diese Woche immer Nachweis Nr. 5 werden - unabhaengig davon, in
+	 * welcher Reihenfolge der Azubi Wochen ausfuellt. Vorher (Bug): einfach
+	 * "letzte vergebene Nummer + 1", d.h. fuellte er KW40 als allererstes
+	 * aus, waere sie faelschlich Nachweis 1 (bzw. 2, wenn schon eine andere
+	 * Woche existierte) geworden.
+	 */
+	public function testNachweisNrFuerIstUnabhaengigVonDerAusfuellReihenfolge(): void {
+		$azubi = $this->azubi();
+		// Start-Woche = Montag der Kalenderwoche, die 4 Wochen vor KW40/2025 liegt.
+		$startWoche = (new \DateTimeImmutable())->setISODate(2025, 40, 1)->sub(new \DateInterval('P28D'));
+		$azubi->setAusbildungsstart($startWoche->format('Y-m-d'));
+
+		$kw40Montag = (new \DateTimeImmutable())->setISODate(2025, 40, 1)->format('Y-m-d');
+
+		// KW40 zuerst (und einzig) abgefragt - muss trotzdem Nachweis 5 sein,
+		// nicht 1 oder 2, nur weil sie zuerst drankam.
+		self::assertSame(5, EintragService::nachweisNrFuer($azubi, $kw40Montag));
+
+		// Reihenfolge spielt keine Rolle: dieselbe Berechnung liefert fuer
+		// eine spaeter abgefragte fruehere Woche trotzdem die kleinere Nummer.
+		self::assertSame(1, EintragService::nachweisNrFuer($azubi, $startWoche->format('Y-m-d')));
+	}
+
+	public function testNachweisNrFuerFaengtWochenVorDemAusbildungsstartAufNachweis1Ab(): void {
+		$azubi = $this->azubi();
+		$azubi->setAusbildungsstart('2026-03-02'); // Montag
+
+		// Eine Woche VOR dem Ausbildungsstart - sollte im Normalbetrieb nicht
+		// vorkommen, darf aber keine negative/0-Nummer erzeugen.
+		self::assertSame(1, EintragService::nachweisNrFuer($azubi, '2026-02-23'));
+	}
+
+	/**
+	 * Testet den Bug-Report ueber den vollen Weg (getOderErstelleWoche, wie
+	 * ihn EintragService::speichereEintrag tatsaechlich aufruft) statt nur
+	 * die reine Berechnung - stellt sicher, dass eine NEU angelegte Woche
+	 * tatsaechlich die kalendarische, nicht die anlage-reihenfolge-basierte
+	 * Nummer bekommt.
+	 */
+	public function testGetOderErstelleWocheVergibtKalenderbasierteNummerFuerNeueWoche(): void {
+		$azubi = $this->azubi();
+		$startWoche = (new \DateTimeImmutable())->setISODate(2025, 40, 1)->sub(new \DateInterval('P28D'));
+		$azubi->setAusbildungsstart($startWoche->format('Y-m-d'));
+		$kw40Montag = (new \DateTimeImmutable())->setISODate(2025, 40, 1)->format('Y-m-d');
+
+		$this->wocheMapper->method('findByAzubiAndWocheVon')->willThrowException(new DoesNotExistException(''));
+		$eingefuegteWoche = null;
+		$this->wocheMapper->method('insert')->willReturnCallback(function (Woche $w) use (&$eingefuegteWoche) {
+			$eingefuegteWoche = $w;
+			$w->setId(1);
+			return $w;
+		});
+
+		$this->service->getOderErstelleWoche($azubi, $kw40Montag);
+
+		self::assertSame(5, $eingefuegteWoche->getNachweisNr());
+	}
+
 	// -- pruefeBearbeitbar --------------------------------------------
 
 	public function testPruefeBearbeitbarErlaubtOffenUndZurueckgewiesen(): void {
