@@ -13,7 +13,7 @@ Zielinstanz (anderer Server, andere PHP-/DB-Version, echte Nutzer). Vor
 dem produktiven Einsatz Abschnitt 8 (Funktion prüfen) einmal vollständig
 durchgehen.
 
-Repository: `https://github.com/peterhagelhof7-cmd/ihk-berichtsheft` (privat)
+Repository: `https://github.com/peterhagelhof7-cmd/ihk-berichtsheft`
 
 
 ## Inhalt
