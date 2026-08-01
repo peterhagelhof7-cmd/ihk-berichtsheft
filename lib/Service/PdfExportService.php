@@ -76,7 +76,9 @@ class PdfExportService {
 		$options = new DompdfOptions();
 		$options->setIsRemoteEnabled(false);
 		$dompdf = new Dompdf($options);
-		$dompdf->loadHtml($html);
+		// Encoding explizit: sonst raet dompdf und verschluckt sich am
+		// base64-Logo-Data-URI (Fehldetektion -> alle Umlaute werden zu "?").
+		$dompdf->loadHtml($html, 'UTF-8');
 		$dompdf->setPaper('A4');
 		$dompdf->render();
 

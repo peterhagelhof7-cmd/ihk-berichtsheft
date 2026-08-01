@@ -176,7 +176,8 @@ class NotenService {
 		$options = new DompdfOptions();
 		$options->setIsRemoteEnabled(false);
 		$dompdf = new Dompdf($options);
-		$dompdf->loadHtml($html);
+		// Encoding explizit (base64-Logo verwirrt sonst dompdfs Autoerkennung).
+		$dompdf->loadHtml($html, 'UTF-8');
 		$dompdf->setPaper('A4');
 		$dompdf->render();
 
