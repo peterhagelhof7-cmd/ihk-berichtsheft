@@ -4,39 +4,39 @@ declare(strict_types=1);
 
 namespace OCA\Berichtsheft\Service;
 
+use OCA\Berichtsheft\Db\BerufMapper;
+use OCP\AppFramework\Db\DoesNotExistException;
+
 /**
- * Leitet aus dem Ausbildungsberuf-Enum (Plan Abschnitt 2) die zwei getrennt
- * gedruckten Deckblatt-Felder "Ausbildungsberuf" und "Fachrichtung/
- * Schwerpunkt" ab. Feste Code-Lookup-Tabelle statt Enum-Aufspaltung, da die
- * Zuordnung 1:1 ans bestehende Enum gekoppelt ist (keine eigene DB-Tabelle
- * noetig).
+ * Loest den auf dem Azubi gespeicherten Beruf-Schluessel (bh_azubi.
+ * ausbildungsberuf) in die zwei getrennt gedruckten Deckblatt-Felder
+ * "Ausbildungsberuf" und "Fachrichtung/Schwerpunkt" auf.
+ *
+ * Frueher eine feste Code-Lookup-Tabelle - jetzt aus dem Ausbilder-pflegbaren
+ * Katalog (bh_beruf, siehe BerufController/Migration). Unbekannte Schluessel
+ * (z.B. ein zwischenzeitlich geloeschter Beruf) fallen graceful auf den
+ * rohen Schluessel bzw. "—" zurueck, statt zu scheitern.
  */
 class AusbildungsberufHelper {
-	/** @var array<string, array{0: string, 1: string}> */
-	private const ZUORDNUNG = [
-		'fiae' => ['Fachinformatiker/-in', 'Anwendungsentwicklung'],
-		'fisi' => ['Fachinformatiker/-in', 'Systemintegration'],
-		'fidp' => ['Fachinformatiker/-in', 'Daten- und Prozessanalyse'],
-		'fidv' => ['Fachinformatiker/-in', 'Digitale Vernetzung'],
-		'kfitsm' => ['Kaufmann/-frau für IT-System-Management', '—'],
-		'kfdm' => ['Kaufmann/-frau für Digitalisierungsmanagement', '—'],
-		'itse' => ['IT-System-Elektroniker/-in', '—'],
-	];
+	public function __construct(
+		private BerufMapper $berufMapper,
+	) {
+	}
 
 	public function getAusbildungsberufBezeichnung(string $enum): string {
-		return self::ZUORDNUNG[$enum][0] ?? $enum;
+		try {
+			return $this->berufMapper->findByKey($enum)->getBezeichnung();
+		} catch (DoesNotExistException) {
+			return $enum;
+		}
 	}
 
 	public function getFachrichtung(string $enum): string {
-		return self::ZUORDNUNG[$enum][1] ?? '—';
-	}
-
-	/** @return array<string, string> id => Anzeigename, fuer Auswahllisten */
-	public static function alleBerufe(): array {
-		$result = [];
-		foreach (self::ZUORDNUNG as $id => [$beruf, $fachrichtung]) {
-			$result[$id] = $fachrichtung === '—' ? $beruf : "$beruf $fachrichtung";
+		try {
+			$fachrichtung = $this->berufMapper->findByKey($enum)->getFachrichtung();
+			return ($fachrichtung !== null && $fachrichtung !== '') ? $fachrichtung : '—';
+		} catch (DoesNotExistException) {
+			return '—';
 		}
-		return $result;
 	}
 }

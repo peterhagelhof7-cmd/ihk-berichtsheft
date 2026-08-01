@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace OCA\Berichtsheft\Controller;
 
 use OCA\Berichtsheft\Db\Fach;
+use OCA\Berichtsheft\Db\FachEintragMapper;
 use OCA\Berichtsheft\Db\FachLehrjahr;
 use OCA\Berichtsheft\Db\FachLehrjahrMapper;
 use OCA\Berichtsheft\Db\FachMapper;
@@ -27,6 +28,7 @@ class FachController extends Controller {
 		IRequest $request,
 		private FachMapper $fachMapper,
 		private FachLehrjahrMapper $fachLehrjahrMapper,
+		private FachEintragMapper $fachEintragMapper,
 		private AusbilderGruppenService $ausbilderGruppenService,
 		private IUserSession $userSession,
 	) {
@@ -111,6 +113,10 @@ class FachController extends Controller {
 		} catch (DoesNotExistException) {
 			return new JSONResponse(['error' => 'Fach nicht gefunden.'], 404);
 		}
+		// Verwaiste Tagebuch-Bezuege (bh_fach_eintrag.fach_id) mitloeschen,
+		// sonst blieben Zeilen mit dangling fach_id zurueck (Anzeige-/PDF-
+		// Macke). Auf einer frischen Instanz ohne Eintraege ein No-op.
+		$this->fachEintragMapper->deleteByFachId($id);
 		$this->fachLehrjahrMapper->deleteByFachId($id);
 		$this->fachMapper->delete($fach);
 		return new JSONResponse(['ok' => true]);

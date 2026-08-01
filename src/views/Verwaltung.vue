@@ -8,18 +8,13 @@ import NcCheckboxRadioSwitch from '@nextcloud/vue/components/NcCheckboxRadioSwit
 import { getFilePickerBuilder } from '@nextcloud/dialogs'
 import { api } from '../api.ts'
 import FaecherVerwaltung from './FaecherVerwaltung.vue'
+import BerufeVerwaltung from './BerufeVerwaltung.vue'
 import LehrjahrZuweisung from './LehrjahrZuweisung.vue'
 
-// -- Berufsliste (AO2020-IT-Berufe + IT-System-Elektroniker/-in), fest --
-const AUSBILDUNGSBERUFE = [
-	{ id: 'fiae', label: 'Fachinformatiker/-in Anwendungsentwicklung' },
-	{ id: 'fisi', label: 'Fachinformatiker/-in Systemintegration' },
-	{ id: 'fidp', label: 'Fachinformatiker/-in Daten- und Prozessanalyse' },
-	{ id: 'fidv', label: 'Fachinformatiker/-in Digitale Vernetzung' },
-	{ id: 'kfitsm', label: 'Kaufmann/-frau für IT-System-Management' },
-	{ id: 'kfdm', label: 'Kaufmann/-frau für Digitalisierungsmanagement' },
-	{ id: 'itse', label: 'IT-System-Elektroniker/-in' },
-]
+// Berufsliste aus dem Ausbilder-pflegbaren Katalog (bh_beruf) geladen -
+// loest die frueher hier fest verdrahtete Liste ab, siehe BerufeVerwaltung.vue.
+interface BerufOption { id: string, label: string }
+const AUSBILDUNGSBERUFE = ref<BerufOption[]>([])
 
 interface Stammdaten {
 	ausbildungsbetriebName: string
@@ -87,7 +82,7 @@ function fehlermeldung(e: unknown, fallback: string): string {
 
 // Aktivierungsformular
 const aktivierenFuer = ref<AzubiListEintrag | null>(null)
-const neuBeruf = ref(AUSBILDUNGSBERUFE[0].id)
+const neuBeruf = ref('')
 const neuStart = ref('')
 const neuAusbildungsjahrStartWert = ref(1)
 const neuLehrjahrStartWert = ref(1)
@@ -161,7 +156,7 @@ async function ladeAusbilderListe() {
 
 function starteAktivierung(eintrag: AzubiListEintrag) {
 	aktivierenFuer.value = eintrag
-	neuBeruf.value = AUSBILDUNGSBERUFE[0].id
+	neuBeruf.value = AUSBILDUNGSBERUFE.value[0]?.id ?? ''
 	neuStart.value = new Date().toISOString().slice(0, 10)
 	neuAusbildungsjahrStartWert.value = 1
 	neuLehrjahrStartWert.value = 1
@@ -260,10 +255,19 @@ async function gesamtexportErzeugen(azubiId: number) {
 	}
 }
 
+async function ladeBerufe() {
+	const { data } = await api.get<{ key: string, label: string }[]>('/beruf')
+	AUSBILDUNGSBERUFE.value = data.map((b) => ({ id: b.key, label: b.label }))
+	if (!neuBeruf.value && AUSBILDUNGSBERUFE.value.length > 0) {
+		neuBeruf.value = AUSBILDUNGSBERUFE.value[0].id
+	}
+}
+
 onMounted(() => {
 	ladeStammdaten()
 	ladeNutzer()
 	ladeAusbilderListe()
+	ladeBerufe()
 })
 </script>
 
@@ -341,7 +345,7 @@ onMounted(() => {
 				:options="AUSBILDUNGSBERUFE"
 				label="label"
 				input-label="Ausbildungsberuf (z.B. bei Berufswechsel)"
-				@update:model-value="(b) => { bearbeitenBeruf = b ? b.id : AUSBILDUNGSBERUFE[0].id }" />
+				@update:model-value="(b) => { bearbeitenBeruf = b ? b.id : (AUSBILDUNGSBERUFE[0]?.id ?? '') }" />
 			<NcSelect
 				:model-value="ausbilderListe.find(a => a.userId === bearbeitenVerantwortlicher) ?? null"
 				:options="ausbilderListe"
@@ -360,7 +364,7 @@ onMounted(() => {
 				:options="AUSBILDUNGSBERUFE"
 				label="label"
 				input-label="Ausbildungsberuf"
-				@update:model-value="(b) => { neuBeruf = b ? b.id : AUSBILDUNGSBERUFE[0].id }" />
+				@update:model-value="(b) => { neuBeruf = b ? b.id : (AUSBILDUNGSBERUFE[0]?.id ?? '') }" />
 			<NcTextField v-model="neuStart" type="date" label="Ausbildungsstart (bei diesem Betrieb)" />
 			<NcTextField v-model="neuAusbildungsjahrStartWert" type="number" label="Ausbildungsjahr zu Beginn (Default 1, bei Betriebswechsel anpassen)" />
 			<NcTextField v-model="neuLehrjahrStartWert" type="number" label="Lehrjahr zu Beginn" />
@@ -374,6 +378,8 @@ onMounted(() => {
 			<NcButton type="primary" @click="aktiviereAzubi">Aktivieren</NcButton>
 			<NcButton @click="aktivierenFuer = null">Abbrechen</NcButton>
 		</div>
+
+		<BerufeVerwaltung />
 
 		<FaecherVerwaltung />
 

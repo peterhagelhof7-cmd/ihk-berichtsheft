@@ -36,4 +36,16 @@ class FachEintragMapper extends QBMapper {
 			->where($qb->expr()->eq('eintrag_id', $qb->createNamedParameter($eintragId, IQueryBuilder::PARAM_INT)))
 			->executeStatement();
 	}
+
+	/**
+	 * Loescht alle Fach-Eintraege, die auf ein bestimmtes Fach zeigen -
+	 * beim Loeschen eines Fachs aus dem Katalog (FachController::destroy),
+	 * damit keine verwaisten Zeilen (fach_id ohne bh_fach) zurueckbleiben.
+	 */
+	public function deleteByFachId(int $fachId): void {
+		$qb = $this->db->getQueryBuilder();
+		$qb->delete($this->getTableName())
+			->where($qb->expr()->eq('fach_id', $qb->createNamedParameter($fachId, IQueryBuilder::PARAM_INT)))
+			->executeStatement();
+	}
 }
