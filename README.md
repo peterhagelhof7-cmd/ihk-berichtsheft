@@ -1,7 +1,9 @@
 # Berichtsheft — IHK-konformes digitales Ausbildungsnachweis für Nextcloud
 
-Digitales Berichtsheft (Ausbildungsnachweis) für Auszubildende in den
-neugeordneten IT-Berufen nach AO2020 — als selbst gehostete Nextcloud-App,
+Digitales Berichtsheft (Ausbildungsnachweis) für Auszubildende — mitgeliefert
+für die neugeordneten IT-Berufe nach AO2020, durch pflegbare Berufe und Fächer
+aber auch für andere Ausbildungsberufe/Branchen nutzbar — als selbst gehostete
+Nextcloud-App,
 nicht als SaaS. Ersetzt handschriftliche oder lose PDF-Wochenberichte durch
 einen echten Einreichen/Prüfen-Workflow direkt in der Nextcloud-Instanz des
 Ausbildungsbetriebs: Azubis tragen täglich ihre Tätigkeiten ein, reichen
@@ -52,6 +54,11 @@ betreiben oder betreiben könnten: Nextcloud.
 - **Notenverwaltung**: Prüfungsnoten je Fach/Lehrjahr mit gewichtetem
   Notenschnitt, als eigenes archivierbares PDF sowie als stets aktuelle
   Übersicht.
+- **Pflegbare Ausbildungsberufe & Fächer**: Ausbilder legen eigene Berufe
+  (Bezeichnung + optionale Fachrichtung) und Berufsschul-Fächer selbst an,
+  bearbeiten und löschen sie. Die mitgelieferten IT-Berufe/-Fächer lassen
+  sich ersetzen — so ist das Berichtsheft auch für **andere Branchen**
+  nutzbar, nicht nur für die IT-Berufe.
 - **Lehrjahr-Zuweisung** und Azubi-Status (aktiv/Ausbildung beendet, z. B.
   bei Berufswechsel oder Abbruch), ohne Verlauf zu löschen.
 - **Erinnerungen & Digest**: wöchentliche Erinnerung an Azubis mit
