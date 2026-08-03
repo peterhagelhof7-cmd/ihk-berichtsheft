@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace OCA\Berichtsheft\Service;
 
+use OCA\Berichtsheft\AppInfo\Application;
 use OCA\Berichtsheft\Db\Azubi;
 use OCA\Berichtsheft\Db\Woche;
+use OCP\IURLGenerator;
 use OCP\IUserManager;
 use OCP\L10N\IFactory as IL10NFactory;
 use OCP\Mail\IMailer;
@@ -24,6 +26,7 @@ class MailService {
 		private IMailer $mailer,
 		private IUserManager $userManager,
 		private IL10NFactory $l10nFactory,
+		private IURLGenerator $urlGenerator,
 	) {
 	}
 
@@ -38,11 +41,15 @@ class MailService {
 			return;
 		}
 
+		$l = $this->l();
+		$link = $this->urlGenerator->linkToRouteAbsolute(Application::APP_ID . '.page.index');
+
 		$template = $this->mailer->createEMailTemplate('berichtsheft.notification', []);
 		$template->setSubject($betreff);
 		$template->addHeader();
 		$template->addHeading($heading);
 		$template->addBodyText($bodyText);
+		$template->addBodyButton((string)$l->t('Berichtsheft öffnen'), $link);
 		$template->addFooter();
 
 		$message = $this->mailer->createMessage();
