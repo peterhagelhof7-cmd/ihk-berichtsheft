@@ -3,15 +3,22 @@
 Zielgruppe: der Systemverwalter, der die App auf einer echten
 Nextcloud-Instanz einrichtet und danach betreut.
 
-**Stand dieses Dokuments:** Release Candidate **0.9.0**. Die App wurde
-umfangreich auf einer lokalen Nextcloud-34.0.1-Testinstanz (WSL2) geprüft:
-kompletter Azubi/Ausbilder-Workflow per echter Browser-Bedienung, alle
-Hintergrundjobs per `occ`, E-Mail-Versand über einen echten SMTP/IMAP-
-Account, PDF-Ausgabe visuell per Rendering geprüft, 31 automatisierte
-PHPUnit-Tests. **Noch nicht geprüft:** Verhalten auf der tatsächlichen
-Zielinstanz (anderer Server, andere PHP-/DB-Version, echte Nutzer). Vor
-dem produktiven Einsatz Abschnitt 8 (Funktion prüfen) einmal vollständig
-durchgehen.
+**Stand dieses Dokuments:** Version **0.11.2**. Die App wird auf einer
+Nextcloud-Testinstanz (Server, unter `test-berichtsheft.itp-solutions.de`)
+sowie lokal (WSL2, Nextcloud 34.0.1) betrieben und geprüft: kompletter
+Azubi/Ausbilder-Workflow per echter Browser-Bedienung, alle Hintergrundjobs
+per `occ`, E-Mail-Versand über einen echten SMTP-Account (inkl. des
+Instanz-Links in der Benachrichtigung), PDF-Ausgabe visuell per Rendering
+geprüft, dazu eine automatisierte PHPUnit-Testsuite. **Noch nicht geprüft:**
+Verhalten auf jeder weiteren konkreten Zielinstanz (anderer Server, andere
+PHP-/DB-Version, echte Nutzer). Vor dem produktiven Einsatz Abschnitt 8
+(Funktion prüfen) einmal vollständig durchgehen.
+
+Seit 0.9.0 hinzugekommen (Auswahl): Ausbilder-pflegbarer Katalog der
+Ausbildungsberufe und Fächer (auch für andere Branchen nutzbar),
+Notenverwaltung mit gewichtetem Schnitt, IHK-Gesamtnachweis-Export,
+Azubi-Status (beenden/reaktivieren), Unterrichtsinhalt je Fach,
+E-Mail-Benachrichtigungen mit direktem Link zur Instanz.
 
 Repository: `https://github.com/peterhagelhof7-cmd/ihk-berichtsheft`
 
@@ -72,11 +79,13 @@ Fehlermeldung abbrechen. `npm install` ist hier der richtige Befehl.
 
 Nach `npm run build` liegen die fertigen Ordner `js/` und `css/` vor.
 
-**Fertiges Release-Paket statt selbst bauen:** Alternativ liegt im
-Repository ein bereits gebautes Release-Archiv bei,
-`dist/berichtsheft-0.9.0-rc1.tar.gz` (falls vorhanden — sonst wie oben
-selbst bauen). Es kann direkt entpackt und gemäß Abschnitt 3 platziert
-werden, ganz ohne Composer/Node auf dem Zielsystem.
+**Fertiges Release-Paket statt selbst bauen:** Für jede Version liegt auf
+der GitHub-Releases-Seite
+(`https://github.com/peterhagelhof7-cmd/ihk-berichtsheft/releases`) ein
+bereits gebautes Release-Archiv als Anhang bei, z. B.
+`berichtsheft-0.11.2.tar.gz`. Es enthält bereits `vendor/`, `js/` und
+`css/`, kann also direkt entpackt und gemäß Abschnitt 3 platziert werden —
+ganz ohne Composer/Node auf dem Zielsystem.
 
 
 ## 3. App auf dem Server platzieren
@@ -109,9 +118,9 @@ sudo -u www-data php occ app:enable berichtsheft
 ```
 
 Dieser Schritt führt automatisch die Datenbank-Migration aus (legt alle
-Tabellen an, aktuell 10 Stück plus die beiden in diesem RC nachgezogenen
-Spalten `bh_azubi.status` und `bh_fach_eintrag.inhalt`). Erfolg prüfen
-mit:
+benötigten Tabellen — aktuell 11, alle mit Präfix `bh_` — und Spalten an;
+die App bringt ihre Migrationen selbst mit, es ist keine manuelle
+DB-Änderung nötig). Erfolg prüfen mit:
 
 ```
 sudo -u www-data php occ app:list | grep berichtsheft
@@ -165,6 +174,13 @@ angelegt und den jeweiligen Lehrjahren zugeordnet werden — optional je
 Fach mit Unterrichtsinhalt-Freitext, den der Azubi später beim
 Tageseintrag ausfüllen kann.
 
+Ebenfalls in der Verwaltung liegt der **Berufe-Katalog**: Er ist ab Werk
+mit den IT-Berufen nach AO2020 vorbelegt, kann aber frei ergänzt oder
+bereinigt werden. Zusammen mit den frei pflegbaren Fächern lässt sich die
+App so auch für andere Branchen einsetzen (Modell: eine Branche pro
+Instanz — Standard-Fächer/-Berufe löschen, eigene anlegen). Ein Beruf
+kann nicht gelöscht werden, solange noch ein Azubi ihn trägt.
+
 
 ## 7. Azubis aktivieren und verwalten
 
@@ -176,8 +192,9 @@ Berichtsheft-Verwaltungsoberfläche (App-Icon → „Verwaltung"):
 1. Den Benutzer aus der Liste wählen und „Als Azubi aktivieren"
    anklicken — **Hinweis:** Mitglieder der Ausbilder-Gruppe erscheinen
    hier bewusst nicht in der Auswahl (siehe Abschnitt 5)
-2. Ausbildungsberuf auswählen (die sechs neugeordneten IT-Berufe nach
-   AO2020)
+2. Ausbildungsberuf auswählen — die Liste kommt aus dem pflegbaren
+   Berufe-Katalog (ab Werk mit den IT-Berufen nach AO2020 vorbelegt, in
+   der Verwaltung frei erweiter-/löschbar, siehe Abschnitt 6)
 3. Ausbildungsstart (Datum) eintragen
 4. „Ausbildungsjahr zu Beginn" — im Normalfall 1 stehen lassen; nur bei
    einem Azubi, der mitten in der Ausbildung den Betrieb gewechselt hat,
@@ -234,11 +251,7 @@ den echten Wochentag/Termin zu warten, siehe Abschnitt 10.
 
 ## 9. Laufender Betrieb
 
-- **Updates**: neue Version aus Git ziehen, erneut `composer install
-  --no-dev --optimize-autoloader` und `npm install && npm run build`
-  ausführen, Dateien auf dem Server ersetzen, danach
-  `sudo -u www-data php occ upgrade` bzw. beim nächsten Seitenaufruf
-  laufen anstehende Migrationen automatisch
+- **Updates**: siehe den eigenen Abschnitt „App aktualisieren" unten.
 - **Backups**: die App legt keine eigenen Dateien außerhalb der
   normalen Nextcloud-Datenbank und des normalen Nextcloud-Dateibereichs
   an — ein reguläres Nextcloud-Backup (Datenbank + `data`-Verzeichnis)
@@ -247,6 +260,60 @@ den echten Wochentag/Termin zu warten, siehe Abschnitt 10.
   produktiven Server nötig): `composer install` (inkl. Dev-Abhängigkeiten,
   NICHT auf einer live bedienten Instanz ausführen — siehe Warnhinweis
   unten) und danach `composer test:unit`
+
+
+### App aktualisieren (Update auf eine neue Version)
+
+Ein Update ersetzt nur das App-Verzeichnis und lässt anschließend
+Nextcloud die fälligen Datenbank-Migrationen ausführen. Bestehende Daten
+(Azubis, Wochen, Noten, PDFs) bleiben erhalten — sie liegen in der
+Nextcloud-Datenbank bzw. im normalen Dateibereich, nicht im App-Ordner.
+
+1. **Backup** ziehen (Datenbank + `data`-Verzeichnis) — ein reguläres
+   Nextcloud-Backup genügt. Bei Produktivinstanzen zwingend vor jedem
+   Update.
+2. **Neue Version beschaffen** — entweder das fertige Release-Archiv der
+   Zielversion von der GitHub-Releases-Seite herunterladen
+   (`berichtsheft-<version>.tar.gz`, enthält bereits `vendor/js/css`),
+   oder aus Git selbst bauen: `git pull`, dann
+   `composer install --no-dev --optimize-autoloader` und
+   `npm install && npm run build` (wie in Abschnitt 2).
+3. **Optional Wartungsmodus** an, damit während des Austauschs niemand
+   schreibt:
+   ```
+   sudo -u www-data php occ maintenance:mode --on
+   ```
+4. **App-Verzeichnis ersetzen** — den Inhalt von
+   `/var/www/nextcloud/apps/berichtsheft/` durch den neuen Stand ersetzen
+   (altes Verzeichnis wegsichern/leeren und neuen Stand hineinlegen bzw.
+   das Release-Archiv darüber entpacken). `vendor/`, `js/` und `css/`
+   müssen mitkommen (Laufzeit-nötig, u. a. für die PDF-Erzeugung).
+   Danach Rechte zurücksetzen:
+   ```
+   sudo chown -R www-data:www-data /var/www/nextcloud/apps/berichtsheft
+   ```
+5. **Migrationen/Upgrade ausführen**:
+   ```
+   sudo -u www-data php occ upgrade
+   ```
+   (Laufen ansonsten beim nächsten Seitenaufruf automatisch an.)
+6. **Wartungsmodus aus**:
+   ```
+   sudo -u www-data php occ maintenance:mode --off
+   ```
+7. **Erfolg prüfen** — die neue Versionsnummer sollte erscheinen:
+   ```
+   sudo -u www-data php occ app:list | grep berichtsheft
+   ```
+
+Hinweise:
+- **Kein Downgrade**: Nextcloud unterstützt das Herabstufen einer App-
+  Version nicht. Zurück geht es nur über das Backup aus Schritt 1.
+- Neue Instanz-weite Einstellungen, die eine Version evtl. voraussetzt
+  (z. B. `overwrite.cli.url` aus Abschnitt 1), bleiben über Updates
+  hinweg bestehen und müssen nur einmalig gesetzt werden.
+- Die Migrationen sind idempotent (prüfen auf bereits vorhandene
+  Tabellen/Spalten) — ein erneuter `occ upgrade` schadet nicht.
 
 
 ## 10. Häufige Probleme
