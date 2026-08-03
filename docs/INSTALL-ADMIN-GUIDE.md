@@ -40,6 +40,7 @@ Repository: `https://github.com/peterhagelhof7-cmd/ihk-berichtsheft`
 | Composer + Node/npm | einmalig, zum Bauen | kann auch auf einem separaten Build-Rechner erfolgen (siehe Abschnitt 2) — auf dem Server selbst danach nicht mehr nötig |
 | System-Cronjob | alle 5 Minuten, `cron.php` | ohne Cron laufen Erinnerungen, Ausbilder-Digest, PDF-Export und Lehrjahresabfrage nicht automatisch |
 | SMTP-Mailversand | in Nextcloud eingerichtet | die App verschickt zusätzlich zu In-App-Benachrichtigungen auch E-Mails (u. a. die Zurückweisungs-Mail mit Ausbilder-Kommentar) |
+| `overwrite.cli.url` gesetzt | auf die externe HTTPS-URL der Instanz (z. B. `https://berichtsheft.example.de`) | die Benachrichtigungs-E-Mails werden aus Hintergrundjobs (Cron) erzeugt — dort gibt es keinen Web-Request, aus dem Nextcloud den Hostnamen ableiten könnte. Ohne diesen Wert enthält der Link in der Mail einen internen Host-/Containernamen statt der echten Adresse und ist nicht anklickbar. Muss pro Instanz einmalig gesetzt werden (siehe Abschnitt 10) |
 | Erlaubnis für eigene Apps | „nicht aus dem App Store"-Apps müssen aktivierbar sein | bei manchen verwalteten/gehosteten Angeboten eingeschränkt — im Zweifel beim Hoster erfragen |
 | HTTPS mit gültigem Zertifikat | feste Domain/Subdomain, Let's-Encrypt reicht | Grundvoraussetzung jeder Nextcloud-Instanz |
 | Datenschutz | echte personenbezogene Ausbildungsdaten (Name, Tätigkeitsbeschreibungen, Anwesenheit, Zeitstempel) | Serverstandort (EU empfohlen) und ggf. Auftragsverarbeitungsvertrag vorab klären |
@@ -267,6 +268,23 @@ den echten Wochentag/Termin zu warten, siehe Abschnitt 10.
 
 - **Keine E-Mails**: SMTP-Konfiguration in den Nextcloud-Grundeinstellungen
   prüfen (Testmail von dort verschicken)
+- **Mail-Benachrichtigung enthält einen unbrauchbaren Link** (interner
+  Host-/Containername statt der echten Adresse, z. B.
+  `http://mein-nextcloud-container/index.php/apps/berichtsheft/`): Die
+  App erzeugt den Link korrekt über Nextclouds URL-Generator; die falsche
+  Adresse stammt aus der Server-Einstellung `overwrite.cli.url`, die
+  Nextcloud in Hintergrundjobs (Cron, kein Web-Request) als Basis-URL
+  verwendet. Auf die echte externe URL setzen:
+
+  ```
+  sudo -u www-data php occ config:system:set overwrite.cli.url --value "https://<externe-domain>"
+  sudo -u www-data php occ config:system:get overwrite.cli.url
+  ```
+
+  Das ist eine **Server-Konfiguration pro Instanz** (nicht Teil der App)
+  und muss auf jedem neuen System einmalig gesetzt werden. Ohne Trailing-
+  Slash eintragen. Der Wert wirkt sich auch auf andere aus Hintergrund-
+  jobs erzeugte Links aus (nicht nur auf das Berichtsheft).
 - **Ausbilder sieht die Verwaltungsoberfläche nicht**: der Benutzer ist
   vermutlich nicht Mitglied der in Schritt 5 angelegten (bzw. in Schritt 6
   ggf. umbenannten) Ausbilder-Gruppe — mit `occ group:list` prüfen
