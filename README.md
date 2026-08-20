@@ -121,6 +121,13 @@ gerenderte PDF-Vorlagen).
 - [Ein-Seiten-Überblick](docs/ONEPAGER.pdf)
 
 
+## Danksagung
+
+Dieses Projekt wurde während der Entwicklung von
+[ITP-Solutions.de](https://itp-solutions.de) unterstützt. Vielen Dank für
+die Unterstützung.
+
+
 ## Lizenz
 
 [AGPL-3.0-or-later](https://www.gnu.org/licenses/agpl-3.0.html)
