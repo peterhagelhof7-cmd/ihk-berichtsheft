@@ -19,6 +19,7 @@ use OCA\Berichtsheft\Db\LehrjahrZuweisungMapper;
 use OCA\Berichtsheft\Db\Woche;
 use OCA\Berichtsheft\Db\WocheMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
+use OCP\DB\Exception as DbException;
 use OCP\Notification\IManager as INotificationManager;
 
 /**
@@ -116,14 +117,27 @@ class EintragService {
 		try {
 			return $this->wocheMapper->findByAzubiAndWocheVon($azubi->getId(), $wocheVon);
 		} catch (DoesNotExistException) {
-			$woche = new Woche();
-			$woche->setAzubiId($azubi->getId());
-			$woche->setNachweisNr(self::nachweisNrFuer($azubi, $wocheVon));
-			$woche->setWocheVon($wocheVon);
-			$woche->setWocheBis(self::wocheBisFuer($wocheVon));
-			$woche->setStatus(Woche::STATUS_OFFEN);
-			$woche->setCreatedAt(time());
+			// noch nicht vorhanden -> unten anlegen
+		}
+
+		$woche = new Woche();
+		$woche->setAzubiId($azubi->getId());
+		$woche->setNachweisNr(self::nachweisNrFuer($azubi, $wocheVon));
+		$woche->setWocheVon($wocheVon);
+		$woche->setWocheBis(self::wocheBisFuer($wocheVon));
+		$woche->setStatus(Woche::STATUS_OFFEN);
+		$woche->setCreatedAt(time());
+		try {
 			return $this->wocheMapper->insert($woche);
+		} catch (DbException $e) {
+			// Race Condition: eine parallele Anfrage (z. B. Doppel-Load beim
+			// Oeffnen der Woche) hat die Woche zwischen SELECT und INSERT bereits
+			// angelegt -> der Unique-Key (azubi_id, nachweis_nr) schlaegt an.
+			// Statt 500 die inzwischen vorhandene Woche zurueckgeben.
+			if ($e->getReason() === DbException::REASON_UNIQUE_CONSTRAINT_VIOLATION) {
+				return $this->wocheMapper->findByAzubiAndWocheVon($azubi->getId(), $wocheVon);
+			}
+			throw $e;
 		}
 	}
 
