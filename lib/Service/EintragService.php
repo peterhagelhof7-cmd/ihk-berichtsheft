@@ -102,7 +102,11 @@ class EintragService {
 		$zielWoche = new DateTimeImmutable($wocheVon);
 		$diff = $startWoche->diff($zielWoche);
 		if ($diff->invert === 1) {
-			return 1;
+			// Woche liegt VOR der ersten angefangenen Ausbildungswoche -> keine
+			// gueltige Nachweis-Nr. 0 (nicht 1!), sonst kollidieren mehrere
+			// Vor-Start-Wochen auf 1 (typisch: Start 01.09., Azubi oeffnet
+			// August-Wochen). nachweis_nr 1 gibt es erst ab der Startwoche.
+			return 0;
 		}
 		return intdiv($diff->days, 7) + 1;
 	}
