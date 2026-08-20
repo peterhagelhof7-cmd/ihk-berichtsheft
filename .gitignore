@@ -5,8 +5,6 @@
 /css/
 /build/
 /.phpunit.cache/
-composer.lock
-package-lock.json
 *.log
 tests/.phpunit.result.cache
 /dist/
