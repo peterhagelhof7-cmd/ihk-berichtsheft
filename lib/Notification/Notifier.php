@@ -76,18 +76,23 @@ class Notifier implements INotifier {
 				throw new UnknownNotificationException('Unbekanntes Subject: ' . $notification->getSubject());
 		}
 
-		// NC 34: setParsedSubject()/setIcon() werfen bei leerem/ungueltigem Wert eine
-		// OCP\Notification\InvalidValueException (= \InvalidArgumentException). Diese ist
-		// seit NC 34 deprecated und flutet sonst das Log ("...prepare() threw
-		// \InvalidArgumentException which is deprecated..."). Vorgabe von NC 34: leeres
-		// Subject vermeiden und jede verbleibende \InvalidArgumentException hier selbst
-		// behandeln, statt sie entweichen zu lassen.
+		// HAUPTURSACHE der NC-34-Log-Flut: setIcon() verlangt seit NC 34 eine ABSOLUTE
+		// URL. imagePath() liefert eine RELATIVE ("/apps/berichtsheft/img/app.svg") ->
+		// OCP\Notification\InvalidValueException (= \InvalidArgumentException) bei JEDER
+		// Notification -> der Manager loggt pro Aufruf eine Deprecation-Warnung. Fix:
+		// getAbsoluteURL() um die imagePath() legen.
+		// Zusaetzlich: setParsedSubject() wirft bei leerem Subject ebenfalls; daher nie
+		// leer setzen. Und als Sicherheitsnetz jede verbleibende \InvalidArgumentException
+		// selbst behandeln (NC-34-Vorgabe "handle all \InvalidArgumentException yourself"),
+		// statt sie als deprecated Exception entweichen zu lassen.
 		if ($subject === '') {
 			$subject = $l->t('Berichtsheft-Benachrichtigung');
 		}
 		try {
 			$notification->setParsedSubject($subject);
-			$notification->setIcon($this->urlGenerator->imagePath(Application::APP_ID, 'app.svg'));
+			$notification->setIcon(
+				$this->urlGenerator->getAbsoluteURL($this->urlGenerator->imagePath(Application::APP_ID, 'app.svg')),
+			);
 		} catch (\InvalidArgumentException $e) {
 			// Unbrauchbare Notification ueberspringen (NC faengt UnknownNotificationException
 			// still ab) statt das Log mit Deprecation-Warnungen zu fluten.
