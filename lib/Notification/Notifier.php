@@ -40,56 +40,59 @@ class Notifier implements INotifier {
 		$l = $this->l10nFactory->get(Application::APP_ID, $languageCode);
 		$parameters = $notification->getSubjectParameters();
 
+		$subject = '';
 		switch ($notification->getSubject()) {
 			case 'woche-eingereicht':
-				$notification->setParsedSubject(
-					$l->t('%1$s hat Woche Nr. %2$s zur Prüfung eingereicht', [
-						$parameters['azubiName'] ?? '?',
-						$parameters['nachweisNr'] ?? '?',
-					]),
-				);
+				$subject = $l->t('%1$s hat Woche Nr. %2$s zur Prüfung eingereicht', [
+					$parameters['azubiName'] ?? '?',
+					$parameters['nachweisNr'] ?? '?',
+				]);
 				break;
 			case 'woche-akzeptiert':
-				$notification->setParsedSubject(
-					$l->t('Woche Nr. %s wurde akzeptiert', [$parameters['nachweisNr'] ?? '?']),
-				);
+				$subject = $l->t('Woche Nr. %s wurde akzeptiert', [$parameters['nachweisNr'] ?? '?']);
 				break;
 			case 'woche-zurueckgewiesen':
-				$notification->setParsedSubject(
-					$l->t('Woche Nr. %1$s wurde zurückgewiesen: %2$s', [
-						$parameters['nachweisNr'] ?? '?',
-						$parameters['kommentar'] ?? '',
-					]),
-				);
+				$subject = $l->t('Woche Nr. %1$s wurde zurückgewiesen: %2$s', [
+					$parameters['nachweisNr'] ?? '?',
+					$parameters['kommentar'] ?? '',
+				]);
 				break;
 			case 'wochenerinnerung':
-				$notification->setParsedSubject(
-					$l->t('Bitte die vergangene Woche im Berichtsheft eintragen'),
-				);
+				$subject = $l->t('Bitte die vergangene Woche im Berichtsheft eintragen');
 				break;
 			case 'ausbilder-digest':
-				$notification->setParsedSubject(
-					$l->t('Berichtsheft-Wochenübersicht'),
-				);
+				$subject = $l->t('Berichtsheft-Wochenübersicht');
 				break;
 			case 'lehrjahr-abfrage':
-				$notification->setParsedSubject(
-					$l->t('Bitte Lehrjahr ab %1$s für %2$s festlegen', [
-						$parameters['stichtag'] ?? '?',
-						$parameters['azubiName'] ?? '?',
-					]),
-				);
+				$subject = $l->t('Bitte Lehrjahr ab %1$s für %2$s festlegen', [
+					$parameters['stichtag'] ?? '?',
+					$parameters['azubiName'] ?? '?',
+				]);
 				break;
 			case 'export-erzeugt':
-				$notification->setParsedSubject(
-					$l->t('4-Wochen-Export Nr. %s wurde erzeugt', [$parameters['exportNr'] ?? '?']),
-				);
+				$subject = $l->t('4-Wochen-Export Nr. %s wurde erzeugt', [$parameters['exportNr'] ?? '?']);
 				break;
 			default:
 				throw new UnknownNotificationException('Unbekanntes Subject: ' . $notification->getSubject());
 		}
 
-		$notification->setIcon($this->urlGenerator->imagePath(Application::APP_ID, 'app.svg'));
+		// NC 34: setParsedSubject()/setIcon() werfen bei leerem/ungueltigem Wert eine
+		// OCP\Notification\InvalidValueException (= \InvalidArgumentException). Diese ist
+		// seit NC 34 deprecated und flutet sonst das Log ("...prepare() threw
+		// \InvalidArgumentException which is deprecated..."). Vorgabe von NC 34: leeres
+		// Subject vermeiden und jede verbleibende \InvalidArgumentException hier selbst
+		// behandeln, statt sie entweichen zu lassen.
+		if ($subject === '') {
+			$subject = $l->t('Berichtsheft-Benachrichtigung');
+		}
+		try {
+			$notification->setParsedSubject($subject);
+			$notification->setIcon($this->urlGenerator->imagePath(Application::APP_ID, 'app.svg'));
+		} catch (\InvalidArgumentException $e) {
+			// Unbrauchbare Notification ueberspringen (NC faengt UnknownNotificationException
+			// still ab) statt das Log mit Deprecation-Warnungen zu fluten.
+			throw new UnknownNotificationException($e->getMessage());
+		}
 
 		return $notification;
 	}
