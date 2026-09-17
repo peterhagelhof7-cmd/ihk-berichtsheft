@@ -91,11 +91,19 @@ Ausbildungsdaten. So sehen die daraus erzeugten PDFs aus:
 
 | Punkt | Anforderung |
 |---|---|
-| Nextcloud | 30 oder neuer (getestet: 34.0.1) |
+| Nextcloud | 30 oder neuer (getestet: 34.0.4) |
 | PHP | 8.2 oder neuer (getestet: 8.5.4) |
 | Build-Werkzeuge (einmalig) | Composer, Node.js/npm — nur zum Bauen, auf dem Zielserver selbst nicht nötig |
 
 Ausführliche Installationsanleitung: [docs/INSTALL-ADMIN-GUIDE.md](docs/INSTALL-ADMIN-GUIDE.md).
+
+> **Hinweis zum Nextcloud-Update:** Beim Aktualisieren von Nextcloud kann der
+> Updater melden *„Für 1 App steht keine kompatible Version verfügbar: Berichtsheft"*.
+> Diese Meldung stammt vom App-Store-Abgleich des Updaters — weil das Berichtsheft
+> bewusst **nicht** im öffentlichen Nextcloud App Store liegt (selbst gehostet), findet
+> er dort keine Download-Version. Sie ist **rein kosmetisch und blockiert das Update
+> nicht**: die App bleibt kompatibel und aktiviert (`max-version` deckt die aktuelle
+> Nextcloud-Reihe ab). Das Update einfach fortsetzen.
 
 
 ## Entwicklung
