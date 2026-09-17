@@ -49,7 +49,13 @@ class PersonalSettings implements ISettings {
 				// Kein Azubi - Vorname/Nachname-Formular wird nicht angezeigt.
 			}
 		}
-		$this->initialState->provideInitialState('azubiDaten', $azubiDaten);
+		// NC 34: provideInitialState() verwirft null (nicht scalar/array/JsonSerializable)
+		// und loggt eine Warnung. Ist der Nutzer kein Azubi, den Zustand daher gar nicht
+		// bereitstellen - loadState() im Frontend faellt dann auf den Default null zurueck
+		// (Verhalten unveraendert, v-if="azubiDaten !== null" bleibt korrekt).
+		if ($azubiDaten !== null) {
+			$this->initialState->provideInitialState('azubiDaten', $azubiDaten);
+		}
 
 		$istAusbilder = $userId !== null && $this->ausbilderGruppenService->isAusbilder($userId);
 		$this->initialState->provideInitialState('istAusbilder', $istAusbilder);
@@ -66,7 +72,10 @@ class PersonalSettings implements ISettings {
 				$digestPraeferenz = ['wochentag' => null, 'uhrzeitStunde' => null];
 			}
 		}
-		$this->initialState->provideInitialState('digestPraeferenz', $digestPraeferenz);
+		// NC 34: gleiche null-Regel wie oben - nur bereitstellen, wenn Ausbilder (sonst null).
+		if ($digestPraeferenz !== null) {
+			$this->initialState->provideInitialState('digestPraeferenz', $digestPraeferenz);
+		}
 
 		Util::addScript(Application::APP_ID, Application::APP_ID . '-settings');
 		Util::addStyle(Application::APP_ID, Application::APP_ID . '-settings');
